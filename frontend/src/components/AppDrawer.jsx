@@ -17,10 +17,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Link } from "react-router-dom";
+import { Outlet } from "react-router-dom"; // Import Outlet to render nested routes
 
 const drawerWidth = 240;
 
-function AppDrawer({ children }) {
+function AppDrawer() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -46,7 +47,7 @@ function AppDrawer({ children }) {
 
       {/* Navigation Links */}
       <List sx={{ flexGrow: 1 }}>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/home">
           <ListItemIcon>
             <Home />
           </ListItemIcon>
@@ -170,7 +171,7 @@ function AppDrawer({ children }) {
           mt: { xs: 8, sm: 0 }, // Prevent content overlap with toolbar on mobile
         }}
       >
-        {children}
+        <Outlet /> {/* Render child components here */}
       </Box>
     </Box>
   );
