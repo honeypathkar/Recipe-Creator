@@ -1,14 +1,30 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SettingScreen = ({ user }) => {
+  const navigate = useNavigate();
   const handleDeleteAccount = () => {
     console.log("Delete Account Clicked");
     // Add functionality for deleting the account
   };
 
-  const handleLogout = () => {
-    console.log("Logout Clicked");
-    // Add functionality for logging out
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        navigate("/login");
+        toast.success("Logout Successful");
+      } else {
+        toast.error("Error logging out");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Error logging out. Please try again.");
+    }
   };
 
   return (

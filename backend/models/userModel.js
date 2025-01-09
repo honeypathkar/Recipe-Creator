@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Profile image is required"],
     },
+    contentType: { type: String, required: [true] },
     recipes: [
       {
         type: mongoose.Schema.Types.ObjectId,
