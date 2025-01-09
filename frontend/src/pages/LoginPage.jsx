@@ -27,7 +27,7 @@ function LoginScreen() {
         headers: { "Content-Type": "application/json" },
       });
       const result = await response.json();
-      console.log(result);
+      // console.log(result);
       if (response.ok) {
         // Navigate to home page after successful login
         navigate("/home", { state: { user: formData }, replace: true });

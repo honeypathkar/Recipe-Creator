@@ -49,7 +49,7 @@ function App() {
           />
           <Route path="/recipe" element={<RecipeScreen />} />
           <Route path="/fav" element={<FavouriteScreen />} />
-          <Route path="/settings" element={<SettingScreen />} />
+          <Route path="/settings" element={<SettingScreen user={user} />} />
         </Route>
       </Routes>
     </Router>
