@@ -158,6 +158,23 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 });
 
+//delete route
+app.post("/delete", verifyToken, async (req, res) => {
+  try {
+    const deletedUser = await User.findOneAndDelete({
+      email: req.body.email,
+    });
+    if (deletedUser) {
+      res.status(200).json({ message: "User deleted successfully" });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Server error while deleting user" });
+  }
+});
+
 // Connect to MongoDB
 connectDB(); // Call the connectDB function here to establish the connection
 

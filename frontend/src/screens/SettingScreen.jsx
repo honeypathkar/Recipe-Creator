@@ -1,12 +1,42 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const SettingScreen = ({ user }) => {
   const navigate = useNavigate();
-  const handleDeleteAccount = () => {
-    console.log("Delete Account Clicked");
-    // Add functionality for deleting the account
+
+  const handleDeleteAccount = async () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to delete your account? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch("http://localhost:5001/delete", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            Swal.fire("Deleted!", "Your account has been deleted.", "success");
+            navigate("/login");
+          } else {
+            toast.error(data.error || "Failed to delete account.");
+          }
+        } catch (error) {
+          console.error("Error deleting account:", error);
+          toast.error("Error deleting account. Please try again.");
+        }
+      }
+    });
   };
 
   const handleLogout = async () => {
