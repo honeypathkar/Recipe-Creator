@@ -43,7 +43,7 @@ function RegisterScreen() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/userRegister", {
+      const response = await fetch("http://localhost:5001/userRegister", {
         method: "POST",
         body: data,
       });

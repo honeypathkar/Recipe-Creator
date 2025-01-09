@@ -20,7 +20,7 @@ function LoginScreen() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/userLogin", {
+      const response = await fetch("http://localhost:5001/userLogin", {
         method: "POST",
         credentials: "include", // Important for cookies
         body: JSON.stringify(formData),

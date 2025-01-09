@@ -21,7 +21,7 @@ import { Outlet } from "react-router-dom"; // Import Outlet to render nested rou
 
 const drawerWidth = 240;
 
-function AppDrawer() {
+function AppDrawer({ user }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -29,11 +29,11 @@ function AppDrawer() {
   };
 
   // Mock user data (replace with dynamic data as needed)
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    profilePic: "https://via.placeholder.com/150", // Replace with a real profile picture URL
-  };
+  // const user = {
+  //   name: "John Doe",
+  //   email: "john.doe@example.com",
+  //   profilePic: "https://via.placeholder.com/150", // Replace with a real profile picture URL
+  // };
 
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -84,7 +84,11 @@ function AppDrawer() {
           bgcolor: "background.paper",
         }}
       >
-        <Avatar src={user.profilePic} alt={user.name} sx={{ mr: 2 }} />
+        <Avatar
+          src={`data:${user.contentType};base64,${user.image}`}
+          alt={user.name}
+          sx={{ mr: 2 }}
+        />
         <Box>
           <Typography variant="body1" noWrap>
             {user.name}
