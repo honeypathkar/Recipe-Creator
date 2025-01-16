@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./database"); // Import the connectDB function
 const User = require("./models/userModel"); // Corrected import to match your model name
+const { generateRecipe } = require("./recipeGenerator");
 
 const app = express();
 const PORT = 5001;
@@ -172,6 +173,19 @@ app.post("/delete", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ error: "Server error while deleting user" });
+  }
+});
+
+// Generate recipe route
+app.post("/generate-recipe", async (req, res) => {
+  console.log("Received data:", req.body); // Ensure you're receiving data
+  try {
+    const result = await generateRecipe(req.body);
+    console.log("Generated Recipe:", result.title); // Log the generated recipe
+    res.json(result); // Return the result to frontend
+  } catch (error) {
+    console.error("Error in generate-recipe route:", error.message);
+    res.status(500).json({ error: "Failed to generate recipe" });
   }
 });
 

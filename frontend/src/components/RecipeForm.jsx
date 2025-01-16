@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axios from "axios"; // Add this line to import axios
+import { toast } from "react-toastify";
 
 const RecipeForm = () => {
   const [ingredient, setIngredient] = useState("");
@@ -24,16 +26,30 @@ const RecipeForm = () => {
     setIngredientsList(ingredientsList.filter((ing) => ing !== item));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Collect all the form data for submission
     const formData = {
       ingredients: ingredientsList,
       members: members,
       cuisine: cuisine,
     };
-    console.log(formData); // Log the form data
-    alert("Form submitted successfully!");
+
+    console.log("Sending data:", formData); // Log the data you're sending
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/generate-recipe",
+        formData
+      );
+      console.log("Received recipe:", response.data); // Log the response data
+      toast.success("Form submitted successfully!");
+    } catch (error) {
+      console.error(
+        "Error submitting the form:",
+        error.response ? error.response.data : error.message
+      );
+      toast.error("Failed to submit the form.");
+    }
   };
 
   return (
@@ -116,7 +132,7 @@ const RecipeForm = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-200"
+            className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-200"
           >
             Submit
           </button>
