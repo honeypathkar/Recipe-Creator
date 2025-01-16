@@ -12,7 +12,7 @@ const app = express();
 const PORT = 5001;
 
 // Middleware
-app.use(cors({ credentials: true, origin: "http://localhost:5174" })); // Allow credentials and frontend origin
+app.use(cors({ credentials: true, origin: "http://localhost:5173" })); // Allow credentials and frontend origin
 app.use(bodyParser.json());
 app.use(cookieParser());
 

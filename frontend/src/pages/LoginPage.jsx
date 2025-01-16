@@ -13,7 +13,6 @@ function LoginScreen() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Field Name: ${name}, Field Value: ${value}`); // Debugging log
     setFormData({ ...formData, [name]: value });
   };
 

@@ -85,7 +85,7 @@ function AppDrawer({ user }) {
         }}
       >
         <Avatar
-          src={`data:${user.contentType};base64,${user.image}`}
+          src={`data:${user.contentType || "image/png"};base64,${user.image}`}
           alt={user.name}
           sx={{ mr: 2 }}
         />
