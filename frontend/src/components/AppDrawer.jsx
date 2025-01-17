@@ -28,24 +28,14 @@ function AppDrawer({ user }) {
     setMobileOpen(!mobileOpen);
   };
 
-  // Mock user data (replace with dynamic data as needed)
-  // const user = {
-  //   name: "John Doe",
-  //   email: "john.doe@example.com",
-  //   profilePic: "https://via.placeholder.com/150", // Replace with a real profile picture URL
-  // };
-
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* App Name */}
       <Box sx={{ textAlign: "center", p: 2 }}>
         <Typography variant="h6" noWrap>
           Recipe Creator AI
         </Typography>
       </Box>
       <Divider />
-
-      {/* Navigation Links */}
       <List sx={{ flexGrow: 1 }}>
         <ListItem button component={Link} to="/home">
           <ListItemIcon>
@@ -54,66 +44,70 @@ function AppDrawer({ user }) {
           <ListItemText primary="Home" />
         </ListItem>
         <ListItem button component={Link} to="/recipe">
+          {" "}
           <ListItemIcon>
-            <FastfoodIcon />
-          </ListItemIcon>
-          <ListItemText primary="Recipe" />
-        </ListItem>
+            {" "}
+            <FastfoodIcon />{" "}
+          </ListItemIcon>{" "}
+          <ListItemText primary="Recipe" />{" "}
+        </ListItem>{" "}
         <ListItem button component={Link} to="/fav">
+          {" "}
           <ListItemIcon>
-            <FavoriteIcon />
-          </ListItemIcon>
-          <ListItemText primary="Favorites" />
-        </ListItem>
+            {" "}
+            <FavoriteIcon />{" "}
+          </ListItemIcon>{" "}
+          <ListItemText primary="Favorites" />{" "}
+        </ListItem>{" "}
         <ListItem button component={Link} to="/settings">
+          {" "}
           <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
+            {" "}
+            <SettingsIcon />{" "}
+          </ListItemIcon>{" "}
+          <ListItemText primary="Settings" />{" "}
         </ListItem>
       </List>
-
       <Divider />
-
-      {/* User Profile Section */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          padding: 2,
-          bgcolor: "background.paper",
-        }}
-      >
-        <Avatar
-          src={`data:${user.contentType || "image/png"};base64,${user.image}`}
-          alt={user.name}
-          sx={{ mr: 2 }}
-        />
-        <Box>
-          <Typography variant="body1" noWrap>
-            {user.name}
-          </Typography>
-          <Typography variant="body2" color="textSecondary" noWrap>
-            {user.email}
-          </Typography>
+      {user && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            padding: 2,
+            bgcolor: "background.paper",
+          }}
+        >
+          <Avatar
+            src={`data:${user.contentType || "image/png"};base64,${user.image}`}
+            alt={user.name}
+            sx={{ mr: 2 }}
+          />
+          <Box>
+            <Typography variant="body1" noWrap>
+              {user.name}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" noWrap>
+              {user.email}
+            </Typography>
+          </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* App Bar for Mobile Menu Button */}
       <Toolbar
         sx={{
           display: { sm: "none" },
           position: "fixed",
           width: "100%",
-          zIndex: 1300, // Ensures toolbar stays above the drawer
+          zIndex: 1300,
           bgcolor: "background.default",
-          justifyContent: "space-between", // Align items between menu button and name
-          alignItems: "center", // Center vertically
-          px: 2, // Add horizontal padding
+          justifyContent: "space-between",
+          alignItems: "center",
+          px: 2,
         }}
       >
         <IconButton
@@ -133,14 +127,12 @@ function AppDrawer({ user }) {
           Recipe Creator AI
         </Typography>
       </Toolbar>
-
-      {/* Drawer for Small Screens */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Improves performance on mobile
+          keepMounted: true,
         }}
         sx={{
           display: { xs: "block", sm: "none" },
@@ -149,8 +141,6 @@ function AppDrawer({ user }) {
       >
         {drawerContent}
       </Drawer>
-
-      {/* Permanent Drawer for Larger Screens */}
       <Drawer
         variant="permanent"
         open
@@ -164,18 +154,16 @@ function AppDrawer({ user }) {
       >
         {drawerContent}
       </Drawer>
-
-      {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          ml: { xs: 0, sm: `${drawerWidth}px` }, // Adjust margin for mobile and desktop
-          mt: { xs: 8, sm: 0 }, // Prevent content overlap with toolbar on mobile
+          ml: { xs: 0, sm: `${drawerWidth}px` },
+          mt: { xs: 8, sm: 0 },
         }}
       >
-        <Outlet /> {/* Render child components here */}
+        <Outlet />
       </Box>
     </Box>
   );

@@ -10,7 +10,7 @@ const generateRecipe = async ({ ingredients, members, cuisine }) => {
     Cuisine: ${cuisine}
     Ingredients: ${JSON.stringify(ingredients)}
     Serves: ${members} people.
-    Format the recipe with a title, cooking instructions, and serving suggestions in json format.
+    Format the recipe with a title, in ingredients always give item name and quintity,  cooking instructions with step count and description of instrunction, and serving suggestions in json format.
   `;
 
   try {

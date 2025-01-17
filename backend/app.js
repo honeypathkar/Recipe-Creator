@@ -5,30 +5,28 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
-const connectDB = require("./database"); // Import the connectDB function
-const User = require("./models/userModel"); // Corrected import to match your model name
+const connectDB = require("./database");
+const User = require("./models/userModel");
 const { generateRecipe } = require("./recipeGenerator");
+const Recipe = require("./models/recipeModel");
 
 const app = express();
 const PORT = 5001;
 
-// Middleware
-app.use(cors({ credentials: true, origin: "http://localhost:5173" })); // Allow credentials and frontend origin
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// File Upload
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Token verification middleware
 const verifyToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "shonty"); // Using environment variable for secret
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "shonty");
     req.user = decoded;
     next();
   } catch (error) {
@@ -36,54 +34,45 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Routes
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Register route
 app.post("/userRegister", upload.single("image"), async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check for existing user
-    const user = await User.findOne({ email }); // Corrected UserModel to User
+    const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ error: "User already exists" });
     }
 
-    // Validate input fields
     if (!name || !email || !password || !req.file) {
       return res
         .status(400)
         .json({ error: "All fields, including an image, are required" });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      image: req.file.buffer.toString("base64"), // Store Base64 image
-      contentType: req.file.mimetype, // MIME type
+      image: req.file.buffer.toString("base64"),
+      contentType: req.file.mimetype,
     });
 
-    // Save user to database
     await newUser.save();
 
-    // Generate JWT token
     const token = jwt.sign({ email, userId: newUser._id }, "shonty");
 
-    // Set cookie with token
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      sameSite: "Strict", // Ensures the cookie is sent with same-site requests
-      path: "/", // Path where the cookie is accessible
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      path: "/",
     });
 
     res.status(200).json({ message: "User registered successfully!" });
@@ -93,11 +82,10 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
   }
 });
 
-// Login route
 app.post("/userLogin", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }); // Corrected UserModel to User
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: "Invalid username or password" });
     }
@@ -111,9 +99,9 @@ app.post("/userLogin", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      sameSite: "Strict", // Ensures the cookie is sent with same-site requests
-      path: "/", // Path where the cookie is accessible
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      path: "/",
     });
 
     res.status(200).json({ message: "Login successful" });
@@ -123,10 +111,9 @@ app.post("/userLogin", async (req, res) => {
   }
 });
 
-// Showing single user after login
 app.get("/profile", verifyToken, async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.user.email }); // Corrected UserModel to User
+    const user = await User.findOne({ email: req.user.email });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -137,10 +124,9 @@ app.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
-// Getting all users
 app.get("/alluser", async (req, res) => {
   try {
-    const users = await User.find(); // Corrected UserModel to User
+    const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -148,7 +134,6 @@ app.get("/alluser", async (req, res) => {
   }
 });
 
-//logout route
 app.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -159,12 +144,9 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 });
 
-//delete route
 app.post("/delete", verifyToken, async (req, res) => {
   try {
-    const deletedUser = await User.findOneAndDelete({
-      email: req.body.email,
-    });
+    const deletedUser = await User.findOneAndDelete({ email: req.body.email });
     if (deletedUser) {
       res.status(200).json({ message: "User deleted successfully" });
     } else {
@@ -176,23 +158,54 @@ app.post("/delete", verifyToken, async (req, res) => {
   }
 });
 
-// Generate recipe route
-app.post("/generate-recipe", async (req, res) => {
+app.post("/generate-recipe", verifyToken, async (req, res) => {
   console.log("Received data:", req.body); // Ensure you're receiving data
   try {
     const result = await generateRecipe(req.body);
     console.log("Generated Recipe:", result); // Log the generated recipe
-    res.json(result); // Return the result to frontend
+
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).send("user not found");
+    }
+
+    const newRecipe = new Recipe({
+      title: result.title,
+      cuisine: result.cuisine,
+      serves: result.serves,
+      ingredients: result.ingredients,
+      instructions: result.instructions,
+      serving_suggestions: result.serving_suggestions,
+      createdBy: user._id,
+    });
+
+    // Ensure user has a recipes array
+    if (!user.recipes) {
+      user.recipes = [];
+    }
+    user.recipes.push(newRecipe._id);
+    await user.save();
+
+    const saveRecipe = await newRecipe.save();
+    res.json(saveRecipe); // Return the result to frontend
   } catch (error) {
     console.error("Error in generate-recipe route:", error.message);
     res.status(500).json({ error: "Failed to generate recipe" });
   }
 });
 
-// Connect to MongoDB
-connectDB(); // Call the connectDB function here to establish the connection
+app.get("/allRecipe", async (req, res) => {
+  try {
+    const recipes = await Recipe.find();
+    res.status(200).json(recipes);
+  } catch (error) {
+    console.log("Error fetching recipes: ", error);
+    res.status(500).json({ error: "Failed to fetch recipes" });
+  }
+});
 
-// Start Server
+connectDB();
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
