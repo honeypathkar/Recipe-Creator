@@ -64,10 +64,15 @@ const SettingScreen = ({ user }) => {
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">Profile</h1>
         <div className="flex items-center">
           <img
-            src={`data:${user.contentType};base64,${user.image}`}
-            alt={user.name}
+            src={
+              user.image && user.contentType
+                ? `data:${user.contentType};base64,${user.image}`
+                : "https://via.placeholder.com/150"
+            }
+            alt={user.name || "Profile Image"}
             className="w-20 h-20 rounded-full border border-gray-300 shadow-md"
           />
+
           <div className="ml-4">
             <h2 className="text-xl font-bold text-gray-800">{user.name}</h2>
             <p className="text-gray-600">{user.email}</p>
@@ -79,13 +84,13 @@ const SettingScreen = ({ user }) => {
           <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm">
             <h3 className="text-lg font-medium text-gray-700">Total Recipes</h3>
             <p className="text-2xl font-bold text-gray-800">
-              {user.recipes.length}
+              {user.recipes ? user.recipes.length : 0}
             </p>
           </div>
           <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm">
             <h3 className="text-lg font-medium text-gray-700">Favorites</h3>
             <p className="text-2xl font-bold text-gray-800">
-              {user.favorites.length}
+              {user.favorites ? user.favorites.length : 0}
             </p>
           </div>
         </div>

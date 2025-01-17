@@ -175,7 +175,6 @@ app.post("/generate-recipe", verifyToken, async (req, res) => {
       serves: result.serves,
       ingredients: result.ingredients,
       instructions: result.instructions,
-      serving_suggestions: result.serving_suggestions,
       createdBy: user._id,
     });
 
@@ -201,6 +200,22 @@ app.get("/allRecipe", async (req, res) => {
   } catch (error) {
     console.log("Error fetching recipes: ", error);
     res.status(500).json({ error: "Failed to fetch recipes" });
+  }
+});
+
+app.get("/userRecipes", verifyToken, async (req, res) => {
+  try {
+    // Use the user ID from the verified token to fetch recipes
+    const userId = req.user.userId;
+
+    // Query the Recipe model for recipes created by the logged-in user
+    const userRecipes = await Recipe.find({ createdBy: userId });
+
+    // Return the recipes in the response
+    res.status(200).json(userRecipes);
+  } catch (error) {
+    console.error("Error fetching user recipes:", error.message);
+    res.status(500).json({ error: "Failed to fetch user recipes" });
   }
 });
 

@@ -3,14 +3,7 @@ import React from "react";
 const RecipeCard = ({ recipe }) => {
   if (!recipe) return null;
 
-  const {
-    title,
-    serves,
-    ingredients,
-    instructions,
-    serving_suggestions,
-    servingSuggestions,
-  } = recipe;
+  const { title, serves, ingredients, instructions } = recipe;
 
   return (
     <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -50,22 +43,6 @@ const RecipeCard = ({ recipe }) => {
             </li>
           ))}
         </ul>
-
-        {/* Serving Suggestions */}
-        {serving_suggestions && (
-          <>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Serving Suggestions
-            </h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-1">
-              {(serving_suggestions || servingSuggestions).map(
-                (suggestion, index) => (
-                  <li key={index}>{suggestion}</li>
-                )
-              )}
-            </ul>
-          </>
-        )}
       </div>
     </div>
   );

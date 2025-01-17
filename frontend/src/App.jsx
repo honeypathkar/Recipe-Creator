@@ -11,7 +11,7 @@ import { Navigate } from "react-router-dom";
 import Alert from "./components/Alert";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -26,8 +26,6 @@ function App() {
         setUser(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
-      } finally {
-        // setLoading(false);
       }
     };
     fetchUserData();

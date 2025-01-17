@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
 
@@ -8,7 +7,7 @@ const RecipeForm = () => {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [members, setMembers] = useState("");
   const [cuisine, setCuisine] = useState("Indian");
-  const [recipe, setRecipe] = useState(null);
+  const [recipes, setRecipes] = useState([]);
 
   const handleAddIngredient = (e) => {
     e.preventDefault();
@@ -36,8 +35,6 @@ const RecipeForm = () => {
       cuisine: cuisine,
     };
 
-    console.log("Sending data:", formData); // Log the data you're sending
-
     try {
       const response = await fetch("http://localhost:5001/generate-recipe", {
         method: "POST",
@@ -50,14 +47,41 @@ const RecipeForm = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json(); // Parse the JSON response
-      console.log("Received recipe:", data.instructions); // Log the response data
-      toast.success("Form submitted successfully!");
+      await response.json(); // Parse the JSON response
+
+      toast.success("Recipe generated successfully!");
+
+      // Fetch all updated recipes
+      fetchUserRecipes();
     } catch (error) {
       console.error("Error submitting the form:", error.message);
       toast.error("Failed to submit the form.");
     }
   };
+
+  const fetchUserRecipes = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/userRecipes", {
+        method: "GET",
+        credentials: "include", // Ensures cookies are sent
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user recipes");
+      }
+
+      const fetchedRecipes = await response.json();
+      setRecipes(fetchedRecipes); // Set all recipes from the response
+      console.log("User recipes:", fetchedRecipes);
+    } catch (error) {
+      console.error("Error fetching user recipes:", error.message);
+    }
+  };
+
+  // Fetch user recipes when the component mounts
+  useEffect(() => {
+    fetchUserRecipes();
+  }, []);
 
   return (
     <>
@@ -142,7 +166,11 @@ const RecipeForm = () => {
           </form>
         </div>
       </div>
-      {recipe && <RecipeCard recipe={recipe} />}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {recipes.map((recipe, index) => (
+          <RecipeCard key={index} recipe={recipe} />
+        ))}
+      </div>
     </>
   );
 };
