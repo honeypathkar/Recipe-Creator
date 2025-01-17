@@ -181,7 +181,7 @@ app.post("/generate-recipe", async (req, res) => {
   console.log("Received data:", req.body); // Ensure you're receiving data
   try {
     const result = await generateRecipe(req.body);
-    console.log("Generated Recipe:", result.title); // Log the generated recipe
+    console.log("Generated Recipe:", result); // Log the generated recipe
     res.json(result); // Return the result to frontend
   } catch (error) {
     console.error("Error in generate-recipe route:", error.message);

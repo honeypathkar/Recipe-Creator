@@ -41,7 +41,7 @@ const RecipeForm = () => {
         "http://localhost:5001/generate-recipe",
         formData
       );
-      console.log("Received recipe:", response.data); // Log the response data
+      console.log("Received recipe:", response.data.instructions); // Log the response data
       toast.success("Form submitted successfully!");
     } catch (error) {
       console.error(

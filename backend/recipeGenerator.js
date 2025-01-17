@@ -10,13 +10,19 @@ const generateRecipe = async ({ ingredients, members, cuisine }) => {
     Cuisine: ${cuisine}
     Ingredients: ${JSON.stringify(ingredients)}
     Serves: ${members} people.
-    Format the recipe with a title, cooking instructions, and serving suggestions and create a response in json format.
+    Format the recipe with a title, cooking instructions, and serving suggestions in json format.
   `;
 
   try {
     const result = await model.generateContent(prompt);
     console.log("Full AI Response:", result); // Log the entire response object
-    return result.response.text();
+
+    // Remove any markdown formatting from the response
+    let jsonData = result.response.text().trim();
+    jsonData = jsonData.replace(/```json|```/g, ""); // Remove triple backticks
+
+    // Parse the cleaned JSON data
+    return JSON.parse(jsonData);
   } catch (error) {
     console.error(
       "Error generating content:",
