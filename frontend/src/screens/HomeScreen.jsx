@@ -70,7 +70,11 @@ const HomeScreen = ({ recipes }) => {
                 </svg>
               </div>
               <div>
-                <p>Created {recipes[recipes.length - 1]?.title}</p>
+                <p>
+                  {recipes.length == 0
+                    ? "No Recipes Yet"
+                    : `Created ${recipes[recipes.length - 1]?.title}`}
+                </p>
                 <span className="text-gray-500">{timeAgo}</span>{" "}
                 {/* Display time ago */}
               </div>

@@ -4,7 +4,7 @@ import { CiHeart } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const RecipeCard = ({ recipe }) => {
+const RecipeCard = ({ recipe, fetchUserRecipes, fetchUserData }) => {
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -19,25 +19,50 @@ const RecipeCard = ({ recipe }) => {
   // Function to handle favorite button click
   const handleFavoriteClick = async () => {
     try {
-      // Send a POST request to add the recipe to favorites using fetch
       const response = await fetch("http://localhost:5001/favorite", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ recipeId: _id }), // Passing recipeId in the request body
-        credentials: "include", // Include credentials like cookies in the request
+        body: JSON.stringify({ recipeId: _id }),
+        credentials: "include",
       });
 
       if (response.ok) {
-        setIsFavorited(true); // Update the favorite state locally
+        setIsFavorited(true);
         toast.success("Recipe added to favorites!");
+        fetchUserData();
       } else {
         throw new Error("Failed to add recipe to favorites");
       }
     } catch (error) {
       console.error("Error adding to favorites:", error);
       toast.error("Failed to add recipe to favorites");
+    }
+  };
+
+  // Function to handle delete button click
+  const handleDelete = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/delete-recipe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipeId: _id }),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        toast.success("Recipe deleted!");
+        fetchUserRecipes();
+        fetchUserData();
+      } else {
+        throw new Error("Failed to delete recipe");
+      }
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
+      toast.error("Failed to delete recipe");
     }
   };
 
@@ -81,7 +106,10 @@ const RecipeCard = ({ recipe }) => {
           >
             See Full Recipe
           </button>
-          <button className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600">
+          <button
+            onClick={handleDelete}
+            className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
+          >
             <FaRegTrashAlt />
             Delete
           </button>

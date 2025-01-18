@@ -145,7 +145,12 @@ const RecipeForm = ({ fetchUserData, fetchUserRecipes, recipes }) => {
       {/* Recipes Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {recipes.map((recipe, index) => (
-          <RecipeCard key={index} recipe={recipe} />
+          <RecipeCard
+            key={index}
+            recipe={recipe}
+            fetchUserRecipes={fetchUserRecipes}
+            fetchUserData={fetchUserData}
+          />
         ))}
       </div>
     </div>
