@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
 
-const RecipeForm = ({ fetchUserData, fetchUserRecipes, recipes }) => {
+const RecipeForm = ({
+  fetchUserData,
+  fetchUserRecipes,
+  recipes,
+  user,
+  favorites,
+  fetchUserFavRecipes,
+}) => {
   const [ingredient, setIngredient] = useState("");
   const [ingredientsList, setIngredientsList] = useState([]);
   const [members, setMembers] = useState("");
@@ -150,6 +157,9 @@ const RecipeForm = ({ fetchUserData, fetchUserRecipes, recipes }) => {
             recipe={recipe}
             fetchUserRecipes={fetchUserRecipes}
             fetchUserData={fetchUserData}
+            fetchUserFavRecipes={fetchUserFavRecipes}
+            user={user}
+            favorites={favorites}
           />
         ))}
       </div>

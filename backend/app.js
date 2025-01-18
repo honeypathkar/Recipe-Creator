@@ -14,7 +14,7 @@ const Favorite = require("./models/favoriteModel");
 const app = express();
 const PORT = 5001;
 
-app.use(cors({ credentials: true, origin: "http://localhost:5175" }));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -313,6 +313,26 @@ app.post("/favorite", verifyToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/userFav", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Find all favorites for the user
+    const userFav = await Favorite.find({ user: userId });
+
+    // Extract recipe IDs from userFav
+    const recipeIds = userFav.map((fav) => fav.recipe);
+
+    // Fetch recipes that match the extracted IDs
+    const userFavRecipe = await Recipe.find({ _id: { $in: recipeIds } });
+
+    res.status(200).json(userFavRecipe);
+  } catch (error) {
+    console.error("Error fetching user favorites", error.message);
+    res.status(500).json({ error: "Failed to fetch user favorites" });
   }
 });
 

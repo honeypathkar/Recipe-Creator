@@ -15,6 +15,7 @@ import "./App.css";
 function App() {
   const [user, setUser] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
   const fetchUserRecipes = async () => {
     try {
@@ -50,9 +51,28 @@ function App() {
     }
   };
 
+  const fetchUserFavRecipes = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/userFav", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user recipes");
+      }
+
+      const fetchedFavRecipes = await response.json();
+      setFavorites(fetchedFavRecipes);
+    } catch (error) {
+      console.error("Error fetching user recipes:", error.message);
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
     fetchUserRecipes();
+    fetchUserFavRecipes();
   }, []);
 
   return (
@@ -82,10 +102,24 @@ function App() {
                 fetchUserData={fetchUserData}
                 recipes={recipes}
                 fetchUserRecipes={fetchUserRecipes}
+                fetchUserFavRecipes={fetchUserFavRecipes}
+                user={user}
+                favorites={favorites}
               />
             }
           />
-          <Route path="/fav" element={<FavouriteScreen />} />
+          <Route
+            path="/fav"
+            element={
+              <FavouriteScreen
+                favorites={favorites}
+                user={user}
+                fetchUserRecipes={fetchUserRecipes}
+                fetchUserData={fetchUserData}
+                fetchUserFavRecipes={fetchUserFavRecipes}
+              />
+            }
+          />
           <Route
             path="/settings"
             element={<SettingScreen user={user} setUser={setUser} />}

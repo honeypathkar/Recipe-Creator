@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegTrashAlt, FaHeart } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const RecipeCard = ({ recipe, fetchUserRecipes, fetchUserData }) => {
+const RecipeCard = ({
+  recipe,
+  fetchUserRecipes,
+  fetchUserData,
+  fetchUserFavRecipes,
+  favorites,
+}) => {
   const navigate = useNavigate();
-  const [isFavorited, setIsFavorited] = useState(false);
 
   if (!recipe) return null;
 
@@ -29,15 +34,16 @@ const RecipeCard = ({ recipe, fetchUserRecipes, fetchUserData }) => {
       });
 
       if (response.ok) {
-        setIsFavorited(true);
+        // setIsFavorited((prev) => !prev); // Toggle favorite status
         toast.success("Recipe added to favorites!");
+        fetchUserFavRecipes();
         fetchUserData();
       } else {
-        throw new Error("Failed to add recipe to favorites");
+        throw new Error("Failed to update favorite status");
       }
     } catch (error) {
-      console.error("Error adding to favorites:", error);
-      toast.error("Failed to add recipe to favorites");
+      console.error("Error updating favorites:", error);
+      toast.error("Failed to update favorite status");
     }
   };
 
@@ -56,6 +62,7 @@ const RecipeCard = ({ recipe, fetchUserRecipes, fetchUserData }) => {
       if (response.ok) {
         toast.success("Recipe deleted!");
         fetchUserRecipes();
+        fetchUserFavRecipes();
         fetchUserData();
       } else {
         throw new Error("Failed to delete recipe");
@@ -66,21 +73,33 @@ const RecipeCard = ({ recipe, fetchUserRecipes, fetchUserData }) => {
     }
   };
 
+  console.log(favorites);
+
   return (
-    <div className="relative max-w-xl mx-auto bg-white rounded-lg border-[1px] border-black overflow-hidden">
+    <div className="max-w-xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
       {/* Favorite Button with conditional color change */}
-      <button
-        onClick={handleFavoriteClick}
-        className={`absolute top-4 right-4 focus:outline-none ${
-          isFavorited ? "text-red-600" : "text-gray-500"
-        }`}
-      >
-        <CiHeart size={30} />
-      </button>
+      <div className="flex items-center">
+        <button
+          onClick={handleFavoriteClick}
+          className={`absolute top-4 right-4 focus:outline-none rounded-full p-3 border-2 ${
+            favorites.some((fav) => fav._id === _id)
+              ? "border-red-600"
+              : "border-gray-600"
+          }`}
+        >
+          {favorites.some((fav) => fav._id === _id) ? (
+            <FaHeart size={30} className="text-red-600" />
+          ) : (
+            <CiHeart size={30} className="text-gray-500" />
+          )}
+        </button>
+      </div>
 
       {/* Recipe Details */}
       <div className="p-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">{title}</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2 pr-[40px]">
+          {title}
+        </h2>
         <p className="text-gray-600 mb-4">Serves: {serves}</p>
         <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
 

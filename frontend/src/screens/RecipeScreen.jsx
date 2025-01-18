@@ -5,6 +5,9 @@ export default function RecipeScreen({
   fetchUserData,
   recipes,
   fetchUserRecipes,
+  fetchUserFavRecipes,
+  user,
+  favorites,
 }) {
   return (
     <div>
@@ -12,6 +15,9 @@ export default function RecipeScreen({
         fetchUserData={fetchUserData}
         recipes={recipes}
         fetchUserRecipes={fetchUserRecipes}
+        fetchUserFavRecipes={fetchUserFavRecipes}
+        user={user}
+        favorites={favorites}
       />
     </div>
   );
