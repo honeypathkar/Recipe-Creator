@@ -10,9 +10,29 @@ import RegisterPage from "./pages/RegisterPage";
 import { Navigate } from "react-router-dom";
 import Alert from "./components/Alert";
 import DetailScreen from "./screens/DetailScreen";
+import "./App.css";
 
 function App() {
   const [user, setUser] = useState([]);
+  const [recipes, setRecipes] = useState([]);
+
+  const fetchUserRecipes = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/userRecipes", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user recipes");
+      }
+
+      const fetchedRecipes = await response.json();
+      setRecipes(fetchedRecipes);
+    } catch (error) {
+      console.error("Error fetching user recipes:", error.message);
+    }
+  };
 
   const fetchUserData = async () => {
     try {
@@ -32,6 +52,7 @@ function App() {
 
   useEffect(() => {
     fetchUserData();
+    fetchUserRecipes();
   }, []);
 
   return (
@@ -46,11 +67,23 @@ function App() {
         <Route element={<AppDrawer user={user} />}>
           <Route
             path="/home"
-            element={user ? <Home user={user} /> : <Navigate to="/login" />}
+            element={
+              user ? (
+                <Home user={user} recipes={recipes} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
           />
           <Route
             path="/recipe"
-            element={<RecipeScreen fetchUserData={fetchUserData} />}
+            element={
+              <RecipeScreen
+                fetchUserData={fetchUserData}
+                recipes={recipes}
+                fetchUserRecipes={fetchUserRecipes}
+              />
+            }
           />
           <Route path="/fav" element={<FavouriteScreen />} />
           <Route

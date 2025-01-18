@@ -15,7 +15,7 @@ const generateRecipe = async ({ ingredients, members, cuisine }) => {
 
   try {
     const result = await model.generateContent(prompt);
-    console.log("Full AI Response:", result); // Log the entire response object
+    // console.log("Full AI Response:", result); // Log the entire response object
 
     // Remove any markdown formatting from the response
     let jsonData = result.response.text().trim();
