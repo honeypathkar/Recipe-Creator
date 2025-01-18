@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { Navigate } from "react-router-dom";
 import Alert from "./components/Alert";
+import DetailScreen from "./screens/DetailScreen";
 
 function App() {
   const [user, setUser] = useState([]);
@@ -56,6 +57,7 @@ function App() {
             path="/settings"
             element={<SettingScreen user={user} setUser={setUser} />}
           />
+          <Route path="/recipe/:id" element={<DetailScreen />} />
         </Route>
       </Routes>
     </Router>

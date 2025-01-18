@@ -87,7 +87,7 @@ const RecipeForm = ({ fetchUserData }) => {
   return (
     <>
       <div className="flex justify-center items-center my-20">
-        <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-3xl">
+        <div className="bg-white rounded-lg border-[1px] border-black p-8 w-full max-w-3xl">
           <h2 className="text-3xl font-bold text-center mb-8">Recipe Form</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
