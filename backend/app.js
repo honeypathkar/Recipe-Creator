@@ -13,7 +13,7 @@ const Recipe = require("./models/recipeModel");
 const app = express();
 const PORT = 5001;
 
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: "http://localhost:5175" }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -162,7 +162,7 @@ app.post("/generate-recipe", verifyToken, async (req, res) => {
   console.log("Received data:", req.body); // Ensure you're receiving data
   try {
     const result = await generateRecipe(req.body);
-    console.log("Generated Recipe:", result); // Log the generated recipe
+    // console.log("Generated Recipe:", result); // Log the generated recipe
 
     const user = await User.findOne({ email: req.user.email });
     if (!user) {

@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-const SettingScreen = ({ user }) => {
+const SettingScreen = ({ user, setUser }) => {
   const navigate = useNavigate();
+
+  // window.location.reload();
 
   const handleDeleteAccount = async () => {
     Swal.fire({
@@ -27,6 +29,7 @@ const SettingScreen = ({ user }) => {
           const data = await response.json();
           if (response.ok) {
             Swal.fire("Deleted!", "Your account has been deleted.", "success");
+            setUser([]);
             navigate("/login");
           } else {
             toast.error(data.error || "Failed to delete account.");
@@ -46,6 +49,7 @@ const SettingScreen = ({ user }) => {
         credentials: "include",
       });
       if (response.ok) {
+        setUser([]);
         navigate("/login");
         toast.success("Logout Successful");
       } else {

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-function LoginScreen() {
+function LoginScreen({ setUser }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,7 +29,9 @@ function LoginScreen() {
       // console.log(result);
       if (response.ok) {
         // Navigate to home page after successful login
-        navigate("/home", { state: { user: formData }, replace: true });
+        setUser(result);
+        navigate("/home", { replace: true });
+        window.location.reload();
         toast.success("Login Successfull");
 
         // Clear history to prevent going back to the login screen

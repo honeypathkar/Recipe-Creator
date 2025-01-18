@@ -1,10 +1,10 @@
 import React from "react";
 import RecipeForm from "../components/RecipeForm";
 
-export default function RecipeScreen() {
+export default function RecipeScreen({ fetchUserData }) {
   return (
     <div>
-      <RecipeForm />
+      <RecipeForm fetchUserData={fetchUserData} />
     </div>
   );
 }

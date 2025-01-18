@@ -3,7 +3,7 @@ import React from "react";
 const RecipeCard = ({ recipe }) => {
   if (!recipe) return null;
 
-  const { title, serves, ingredients, instructions } = recipe;
+  const { title, cuisine, serves, ingredients, instructions } = recipe;
 
   return (
     <div className="max-w-xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
@@ -11,6 +11,7 @@ const RecipeCard = ({ recipe }) => {
       <div className="p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">{title}</h2>
         <p className="text-gray-600 mb-4">Serves: {serves}</p>
+        <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
 
         {/* Ingredients */}
         <h3 className="text-xl font-semibold text-gray-800 mb-2">

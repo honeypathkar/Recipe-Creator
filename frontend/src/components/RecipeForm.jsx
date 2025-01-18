@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
 
-const RecipeForm = () => {
+const RecipeForm = ({ fetchUserData }) => {
   const [ingredient, setIngredient] = useState("");
   const [ingredientsList, setIngredientsList] = useState([]);
   const [members, setMembers] = useState("");
@@ -53,6 +53,7 @@ const RecipeForm = () => {
 
       // Fetch all updated recipes
       fetchUserRecipes();
+      fetchUserData();
     } catch (error) {
       console.error("Error submitting the form:", error.message);
       toast.error("Failed to submit the form.");

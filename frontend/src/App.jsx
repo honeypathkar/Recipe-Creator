@@ -13,21 +13,23 @@ import Alert from "./components/Alert";
 function App() {
   const [user, setUser] = useState([]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("http://localhost:5001/profile", {
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setUser(data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/profile", {
+        credentials: "include",
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
       }
-    };
+      const data = await response.json();
+      setUser(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchUserData();
   }, []);
 
@@ -36,7 +38,7 @@ function App() {
       <Alert />
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage setUser={setUser} />} />
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Layout Route for AppDrawer */}
@@ -45,9 +47,15 @@ function App() {
             path="/home"
             element={user ? <Home user={user} /> : <Navigate to="/login" />}
           />
-          <Route path="/recipe" element={<RecipeScreen />} />
+          <Route
+            path="/recipe"
+            element={<RecipeScreen fetchUserData={fetchUserData} />}
+          />
           <Route path="/fav" element={<FavouriteScreen />} />
-          <Route path="/settings" element={<SettingScreen user={user} />} />
+          <Route
+            path="/settings"
+            element={<SettingScreen user={user} setUser={setUser} />}
+          />
         </Route>
       </Routes>
     </Router>
