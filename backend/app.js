@@ -9,6 +9,7 @@ const connectDB = require("./database");
 const User = require("./models/userModel");
 const { generateRecipe } = require("./recipeGenerator");
 const Recipe = require("./models/recipeModel");
+const Favorite = require("./models/favoriteModel");
 
 const app = express();
 const PORT = 5001;
@@ -216,6 +217,46 @@ app.get("/userRecipes", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching user recipes:", error.message);
     res.status(500).json({ error: "Failed to fetch user recipes" });
+  }
+});
+
+app.post("/favorite", verifyToken, async (req, res) => {
+  try {
+    // Retrieve the recipe ID from the request body
+    const { recipeId } = req.body;
+
+    // Check if the recipe exists in the database
+    const recipe = await Recipe.findById(recipeId);
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    // Retrieve the user from the token (added by verifyToken middleware)
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Create a new favorite entry
+    const newFavorite = new Favorite({
+      user: user._id,
+      recipe: recipe._id,
+    });
+
+    // Save the favorite entry to the database
+    const savedFavorite = await newFavorite.save();
+
+    // Add the favorite ID to the user's favorites array
+    user.favorites.push(savedFavorite._id);
+    await user.save();
+
+    // Respond with the updated favorite entry
+    res
+      .status(200)
+      .json({ message: "Recipe added to favorites", favorite: savedFavorite });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

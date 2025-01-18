@@ -1,25 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
-const RecipeCard = ({ recipe, onDelete, onFavorite }) => {
+const RecipeCard = ({ recipe }) => {
   const navigate = useNavigate();
+  const [isFavorited, setIsFavorited] = useState(false);
 
   if (!recipe) return null;
 
-  const { title, cuisine, serves, ingredients } = recipe;
+  const { title, cuisine, serves, ingredients, _id } = recipe;
 
   const handleViewDetails = () => {
-    navigate(`/recipe/${recipe._id}`, { state: { recipe } });
+    navigate(`/recipe/${_id}`, { state: { recipe } });
+  };
+
+  // Function to handle favorite button click
+  const handleFavoriteClick = async () => {
+    try {
+      // Send a POST request to add the recipe to favorites using fetch
+      const response = await fetch("http://localhost:5001/favorite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipeId: _id }), // Passing recipeId in the request body
+        credentials: "include", // Include credentials like cookies in the request
+      });
+
+      if (response.ok) {
+        setIsFavorited(true); // Update the favorite state locally
+        toast.success("Recipe added to favorites!");
+      } else {
+        throw new Error("Failed to add recipe to favorites");
+      }
+    } catch (error) {
+      console.error("Error adding to favorites:", error);
+      toast.error("Failed to add recipe to favorites");
+    }
   };
 
   return (
     <div className="relative max-w-xl mx-auto bg-white rounded-lg border-[1px] border-black overflow-hidden">
-      {/* Favorite Button */}
+      {/* Favorite Button with conditional color change */}
       <button
-        onClick={onFavorite}
-        className="absolute top-4 right-4 text-red-500 hover:text-red-600 focus:outline-none"
+        onClick={handleFavoriteClick}
+        className={`absolute top-4 right-4 focus:outline-none ${
+          isFavorited ? "text-red-600" : "text-gray-500"
+        }`}
       >
         <CiHeart size={30} />
       </button>
@@ -52,10 +81,7 @@ const RecipeCard = ({ recipe, onDelete, onFavorite }) => {
           >
             See Full Recipe
           </button>
-          <button
-            onClick={onDelete}
-            className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
-          >
+          <button className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600">
             <FaRegTrashAlt />
             Delete
           </button>
