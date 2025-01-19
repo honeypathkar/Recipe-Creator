@@ -70,7 +70,7 @@ function RegisterPage() {
     <div className="flex flex-wrap min-h-screen">
       {/* Form Section */}
       <motion.div
-        className="flex items-center justify-center w-full lg:w-1/2 bg-[#2418ff]"
+        className="flex items-center justify-center w-full lg:w-1/2 lg:bg-[#2418ff] bg-gray-100"
         initial={{ x: -300, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}

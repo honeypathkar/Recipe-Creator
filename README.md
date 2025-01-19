@@ -2,7 +2,7 @@
 
 ## Description
 
-**Recipe Creator AI** is a full-stack MERN application that leverages artificial intelligence to generate recipes based on the ingredients provided by the user. This project uses a combination of modern technologies to deliver an interactive and feature-rich user experience. 
+**Recipe Creator AI** is a full-stack MERN application that leverages artificial intelligence to generate recipes based on the ingredients provided by the user. This project uses a combination of modern technologies to deliver an interactive and feature-rich user experience.
 
 Key features include:
 
@@ -49,38 +49,42 @@ This project is built using the MERN stack, which includes:
 ### 1. Clone the GitHub Repository
 
 ```bash
-git clone https://github.com/your-username/recipe-creator-ai.git
+git clone https://github.com/honeypathkar/Recipe-Creator.git
 ```
 
 ### 2. Setup Backend
 
-  - Install the required dependencies :
-    ```bash
-    cd backend
-    npm install
-    ```
+- Install the required dependencies :
 
-  - Add your Gemini API Key in the .env file (create it if it doesn't exist):
-    ```bash
-    GEMINI_API_KEY=your-api-key
-    ```
-  - Start the backend server:
-    ```bash
-    nodemon app.js
-    ```
+  ```bash
+  cd backend
+  npm install
+  ```
+
+- Add your Gemini API Key in the .env file (create it if it doesn't exist):
+  ```bash
+  GEMINI_API_KEY=your-api-key
+  ```
+- Start the backend server:
+  ```bash
+  nodemon app.js
+  ```
 
 ### 3. Setup Frontend
-  - install the required dependencies:
-    ```bash
-    cd frontend
-    npm install
-    ```
-  - Start the frontend development server:
-    ```bash
-    npm run dev
-    ```
+
+- install the required dependencies:
+  ```bash
+  cd frontend
+  npm install
+  ```
+- Start the frontend development server:
+  ```bash
+  npm run dev
+  ```
 
 ## Access the application
-  - Once both the frontend and backend are running, you can access the application by opening your browser and navigating to:
-    ```bash
-      http://localhost:5173
+
+- Once both the frontend and backend are running, you can access the application by opening your browser and navigating to:
+  ```bash
+    http://localhost:5173
+  ```

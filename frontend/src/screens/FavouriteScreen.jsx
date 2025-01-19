@@ -22,18 +22,20 @@ function FavouriteScreen({
           <div className="text-center mt-2">No Favorite Yet</div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map((recipe) => (
-            <RecipeCard
-              key={recipe._id}
-              recipe={recipe}
-              favorites={favorites}
-              user={user}
-              fetchUserData={fetchUserData}
-              fetchUserRecipes={fetchUserRecipes}
-              fetchUserFavRecipes={fetchUserFavRecipes}
-            />
-          ))}
+        <div className="flex justify-center items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
+            {favorites.map((recipe) => (
+              <RecipeCard
+                key={recipe._id}
+                recipe={recipe}
+                favorites={favorites}
+                user={user}
+                fetchUserData={fetchUserData}
+                fetchUserRecipes={fetchUserRecipes}
+                fetchUserFavRecipes={fetchUserFavRecipes}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -85,7 +85,7 @@ function LoginPage({ setUser }) {
 
       {/* Form Section */}
       <motion.div
-        className="flex items-center justify-center w-full lg:w-1/2 bg-[#2418ff]"
+        className="flex items-center justify-center w-full lg:w-1/2 lg:bg-[#2418ff] bg-gray-100"
         initial="hidden"
         animate="visible"
         variants={formVariants} // Apply the form animation
