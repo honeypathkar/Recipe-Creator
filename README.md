@@ -61,9 +61,11 @@ git clone https://github.com/honeypathkar/Recipe-Creator.git
   npm install
   ```
 
-- Add your Gemini API Key in the .env file (create it if it doesn't exist):
+- Add your Gemini API Key in the .env file (create it if it doesn't exist) And also Add JWT_SECRET key and CLIENT_URL:
   ```bash
   GEMINI_API_KEY=your-api-key
+  JWT_SECRET=your-key
+  CLIENT_URL=your-client-url
   ```
 - Start the backend server:
   ```bash

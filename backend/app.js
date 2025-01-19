@@ -10,11 +10,12 @@ const User = require("./models/userModel");
 const { generateRecipe } = require("./recipeGenerator");
 const Recipe = require("./models/recipeModel");
 const Favorite = require("./models/favoriteModel");
+require("dotenv").config();
 
 const app = express();
 const PORT = 5001;
 
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -27,7 +28,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: "No token provided" });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "shonty");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
@@ -67,7 +68,10 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
 
     await newUser.save();
 
-    const token = jwt.sign({ email, userId: newUser._id }, "shonty");
+    const token = jwt.sign(
+      { email, userId: newUser._id },
+      process.env.JWT_SECRET
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -96,7 +100,10 @@ app.post("/userLogin", async (req, res) => {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    const token = jwt.sign({ email: user.email, userId: user._id }, "shonty");
+    const token = jwt.sign(
+      { email: user.email, userId: user._id },
+      process.env.JWT_SECRET
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
