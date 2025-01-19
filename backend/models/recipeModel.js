@@ -15,7 +15,6 @@ const instructionSchema = new mongoose.Schema({
 const recipeSchema = new mongoose.Schema({
   title: { type: String, required: true },
   cuisine: { type: String, required: true },
-  serves: { type: Number, required: true },
   ingredients: [ingredientSchema],
   instructions: [instructionSchema],
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference to the User

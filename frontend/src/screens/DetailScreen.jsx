@@ -10,7 +10,7 @@ const DetailScreen = () => {
 
   if (!recipe) return <p>No recipe details found.</p>;
 
-  const { title, cuisine, serves, ingredients, instructions } = recipe;
+  const { title, cuisine, ingredients, instructions } = recipe;
 
   const handleBackNavigation = () => {
     navigate("/recipe", { replace: true }); // Navigates back and clears history
@@ -41,9 +41,6 @@ const DetailScreen = () => {
         <div className="mb-6">
           <p className="text-gray-600 text-lg mb-2">
             <strong>Cuisine:</strong> {cuisine}
-          </p>
-          <p className="text-gray-600 text-lg">
-            <strong>Serves:</strong> {serves}
           </p>
         </div>
 

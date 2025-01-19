@@ -173,7 +173,6 @@ app.post("/generate-recipe", verifyToken, async (req, res) => {
     const newRecipe = new Recipe({
       title: result.title,
       cuisine: result.cuisine,
-      serves: result.serves,
       ingredients: result.ingredients,
       instructions: result.instructions,
       createdBy: user._id,

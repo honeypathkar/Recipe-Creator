@@ -15,7 +15,7 @@ const RecipeCard = ({
 
   if (!recipe) return null;
 
-  const { title, cuisine, serves, ingredients, _id } = recipe;
+  const { title, cuisine, ingredients, _id } = recipe;
 
   const handleViewDetails = () => {
     navigate(`/recipe/${_id}`, { state: { recipe } });
@@ -105,7 +105,6 @@ const RecipeCard = ({
         <h2 className="text-3xl font-bold text-gray-800 mb-2 pr-[40px]">
           {title}
         </h2>
-        <p className="text-gray-600 mb-4">Serves: {serves}</p>
         <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
 
         {/* Ingredients */}

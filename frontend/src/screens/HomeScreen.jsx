@@ -27,7 +27,8 @@ const HomeScreen = ({ recipes, favorites }) => {
 
   return (
     <motion.div
-      className="p-8 min-h-screen"
+      className="p-8"
+      style={{ overflowY: "auto" }}
       initial={{ y: 200, opacity: 0 }}
       animate={{ y: 50, opacity: 1 }}
       transition={{ duration: 0.8 }}
