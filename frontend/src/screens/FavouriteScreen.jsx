@@ -1,6 +1,6 @@
 import React from "react";
 import RecipeCard from "../components/RecipeCard"; // Adjust the path as needed
-// import { toast } from "react-toastify";
+import NoFavoriteImage from "../images/no-favorite.png";
 
 function FavouriteScreen({
   favorites,
@@ -11,9 +11,16 @@ function FavouriteScreen({
 }) {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Your Favorites</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Your Favorites</h1>
       {favorites.length == 0 ? (
-        <div>No Favorite Yet</div>
+        <div className="flex flex-col justify-center items-center my-40">
+          <img
+            src={NoFavoriteImage}
+            alt="No Favorite Yet"
+            className="w-56 h-56"
+          />
+          <div className="text-center mt-2">No Favorite Yet</div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites.map((recipe) => (

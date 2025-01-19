@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { FaCamera, FaTimes, FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion"; // Import framer-motion
+import RegisterImage from "../images/register-image.png";
 
-function RegisterScreen() {
+function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -50,137 +52,157 @@ function RegisterScreen() {
 
       const result = await response.json();
       if (response.ok) {
-        // alert("User registered successfully!");
         navigate("/login");
         toast.success("Register Successfully");
       } else if (response.status === 400) {
         toast.error("User already exists");
       } else {
         console.error(result.error);
-        // alert("Failed to register user.");
         toast.error("Failed to register user");
       }
     } catch (err) {
       console.error("Error submitting the form:", err);
-      // alert("Error occurred. Try again later.");
       toast.error("Error occurred. Try again later.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md"
-        onSubmit={handleSubmit}
+    <div className="flex flex-wrap min-h-screen">
+      {/* Form Section */}
+      <motion.div
+        className="flex items-center justify-center w-full lg:w-1/2 bg-[#2418ff]"
+        initial={{ x: -300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Register Form</h2>
+        <form
+          className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md"
+          onSubmit={handleSubmit}
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center">Register Form</h2>
 
-        {/* Image Upload Section */}
-        <div className="mb-6 flex flex-col items-center">
-          {imagePreview ? (
-            <div className="relative">
-              <img
-                src={imagePreview}
-                alt="Uploaded Preview"
-                className="w-24 h-24 rounded-full object-cover border border-gray-300"
+          {/* Image Upload Section */}
+          <div className="mb-6 flex flex-col items-center">
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Uploaded Preview"
+                  className="w-24 h-24 rounded-full object-cover border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full focus:outline-none"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ) : (
+              <div className="relative w-24 h-24 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
+                <label htmlFor="image" className="cursor-pointer text-gray-500">
+                  <FaCamera size={24} />
+                </label>
+                <input
+                  id="image"
+                  name="image"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  required
+                  onChange={handleImageChange}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Name Field */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">Name</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter your name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+              value={formData.name}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          {/* Email Field */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="Enter your email"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          {/* Password Field */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium mb-2">
+              Password
+            </label>
+            <div className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
+              <input
+                type={show ? "text" : "password"}
+                className="outline-none w-full"
+                required
+                name="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleInputChange}
               />
               <button
                 type="button"
-                onClick={removeImage}
-                className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full focus:outline-none"
+                aria-label={show ? "Hide password" : "Show password"}
+                onClick={() => setShow(!show)}
+                className="disabled:text-gray-400"
+                disabled={!formData.password}
               >
-                <FaTimes />
+                {show ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-          ) : (
-            <div className="relative w-24 h-24 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
-              <label htmlFor="image" className="cursor-pointer text-gray-500">
-                <FaCamera size={24} />
-              </label>
-              <input
-                id="image"
-                name="image"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                required
-                onChange={handleImageChange}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Name Field */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Name</label>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter your name"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            value={formData.name}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        {/* Email Field */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="Enter your email"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={formData.email}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        {/* Password Field */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Password
-          </label>
-          <div className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
-            <input
-              type={show ? "text" : "password"}
-              className="outline-none w-full"
-              required
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleInputChange}
-            />
-            <button
-              type="button"
-              aria-label={show ? "Hide password" : "Show password"}
-              onClick={() => setShow(!show)}
-              className="disabled:text-gray-400"
-              disabled={!formData.password}
-            >
-              {show ? <FaEyeSlash /> : <FaEye />}
-            </button>
           </div>
-        </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
-        >
-          Create Account
-        </button>
-        <div className="flex justify-center mt-5">
-          Already have an account?&nbsp;
-          <Link to="/login" className="text-blue-500">
-            Login
-          </Link>
-        </div>
-      </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-[#2418ff] text-white py-2 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200"
+          >
+            Create Account
+          </button>
+          <div className="flex justify-center mt-5">
+            Already have an account?&nbsp;
+            <Link to="/login" className="text-[#2418ff]">
+              Login
+            </Link>
+          </div>
+        </form>
+      </motion.div>
+      {/* Image Section */}
+      <motion.div
+        className="hidden lg:flex items-center justify-center bg-white w-full lg:w-1/2"
+        initial={{ x: 300, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <img
+          src={RegisterImage}
+          alt="Register illustration"
+          className="w-3/4 max-h-screen object-contain"
+        />
+      </motion.div>
     </div>
   );
 }
 
-export default RegisterScreen;
+export default RegisterPage;

@@ -160,7 +160,7 @@ app.post("/delete", verifyToken, async (req, res) => {
 });
 
 app.post("/generate-recipe", verifyToken, async (req, res) => {
-  console.log("Received data:", req.body); // Ensure you're receiving data
+  // console.log("Received data:", req.body); // Ensure you're receiving data
   try {
     const result = await generateRecipe(req.body);
     // console.log("Generated Recipe:", result); // Log the generated recipe
@@ -323,11 +323,19 @@ app.get("/userFav", verifyToken, async (req, res) => {
     // Find all favorites for the user
     const userFav = await Favorite.find({ user: userId });
 
-    // Extract recipe IDs from userFav
-    const recipeIds = userFav.map((fav) => fav.recipe);
+    // Fetch the recipes and include the addedAt field from userFav
+    const userFavRecipe = await Promise.all(
+      userFav.map(async (fav) => {
+        // Find the recipe by ID
+        const recipe = await Recipe.findById(fav.recipe);
 
-    // Fetch recipes that match the extracted IDs
-    const userFavRecipe = await Recipe.find({ _id: { $in: recipeIds } });
+        // Attach the addedAt time from the favorite record
+        return {
+          ...recipe.toObject(), // Convert the recipe to a plain object
+          addedAt: fav.addedAt, // Include addedAt time
+        };
+      })
+    );
 
     res.status(200).json(userFavRecipe);
   } catch (error) {

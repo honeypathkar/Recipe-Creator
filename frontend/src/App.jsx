@@ -89,7 +89,7 @@ function App() {
             path="/home"
             element={
               user ? (
-                <Home user={user} recipes={recipes} />
+                <Home user={user} recipes={recipes} favorites={favorites} />
               ) : (
                 <Navigate to="/login" />
               )

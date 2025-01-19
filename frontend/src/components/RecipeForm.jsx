@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
+import NoRecipeImage from "../images/no-favorite.png";
 
 const RecipeForm = ({
   fetchUserData,
@@ -150,18 +151,34 @@ const RecipeForm = ({
       </div>
 
       {/* Recipes Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {recipes.map((recipe, index) => (
-          <RecipeCard
-            key={index}
-            recipe={recipe}
-            fetchUserRecipes={fetchUserRecipes}
-            fetchUserData={fetchUserData}
-            fetchUserFavRecipes={fetchUserFavRecipes}
-            user={user}
-            favorites={favorites}
-          />
-        ))}
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4 text-center">
+          Your Created Recipes
+        </h1>
+        {recipes.length == 0 ? (
+          <div className="flex flex-col justify-center items-center">
+            <img
+              src={NoRecipeImage}
+              alt="No Favorite Yet"
+              className="w-56 h-56"
+            />
+            <div className="text-center mt-2">No Creation Yet</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe, index) => (
+              <RecipeCard
+                key={index}
+                recipe={recipe}
+                fetchUserRecipes={fetchUserRecipes}
+                fetchUserData={fetchUserData}
+                fetchUserFavRecipes={fetchUserFavRecipes}
+                user={user}
+                favorites={favorites}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

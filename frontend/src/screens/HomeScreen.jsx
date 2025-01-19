@@ -2,20 +2,36 @@ import { Create, Favorite } from "@mui/icons-material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns"; // Import the required function
+import { motion } from "framer-motion";
 
-const HomeScreen = ({ recipes }) => {
+const HomeScreen = ({ recipes, favorites }) => {
   const navigate = useNavigate();
 
   // Get the createdAt timestamp from the most recent recipe
   const createdAt = recipes[recipes.length - 1]?.createdAt;
-
+  // const addedAt = favorites[favorites.length - 1]?.addedAt;
   // Format the createdAt timestamp into a human-readable format (e.g., '2 hours ago')
   const timeAgo = createdAt
     ? formatDistanceToNow(new Date(createdAt), { addSuffix: true })
     : "";
 
+  // const timeAgoSave = addedAt
+  //   ? formatDistanceToNow(new Date(addedAt), { addSuffix: true })
+  //   : "";
+
+  const addedAt = favorites[favorites.length - 1]?.addedAt;
+  const timeAgoSave =
+    addedAt && !isNaN(new Date(addedAt).getTime())
+      ? formatDistanceToNow(new Date(addedAt), { addSuffix: true })
+      : "";
+
   return (
-    <div className="p-8">
+    <motion.div
+      className="p-8 min-h-screen"
+      initial={{ y: 200, opacity: 0 }}
+      animate={{ y: 50, opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-4">Welcome back, Chef!</h1>
         <p className="text-lg mb-8">Let's create something delicious today</p>
@@ -72,7 +88,7 @@ const HomeScreen = ({ recipes }) => {
               <div>
                 <p>
                   {recipes.length == 0
-                    ? "No Recipes Yet"
+                    ? "No Recipes Created Yet"
                     : `Created ${recipes[recipes.length - 1]?.title}`}
                 </p>
                 <span className="text-gray-500">{timeAgo}</span>{" "}
@@ -84,14 +100,20 @@ const HomeScreen = ({ recipes }) => {
                 <Favorite sx={{ color: "red" }} />
               </div>
               <div>
-                <p>Added to Favorites</p>
-                <span className="text-gray-500">1 day ago</span>
+                <p>
+                  {favorites.length == 0
+                    ? "No Recipe Added to Favorites yet"
+                    : `Added to Favorites ${
+                        favorites[favorites.length - 1]?.title
+                      }`}
+                </p>
+                <span className="text-gray-500">{timeAgoSave}</span>
               </div>
             </li>
           </ul>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
