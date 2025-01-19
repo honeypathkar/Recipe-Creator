@@ -15,6 +15,7 @@ const RecipeForm = ({
   const [ingredientsList, setIngredientsList] = useState([]);
   const [members, setMembers] = useState("");
   const [cuisine, setCuisine] = useState("Indian");
+  const [loading, setLoading] = useState(false); // Loading state
 
   const handleAddIngredient = (e) => {
     e.preventDefault();
@@ -42,6 +43,7 @@ const RecipeForm = ({
       cuisine: cuisine,
     };
 
+    setLoading(true); // Start loading
     try {
       const response = await fetch("http://localhost:5001/generate-recipe", {
         method: "POST",
@@ -57,6 +59,8 @@ const RecipeForm = ({
       await response.json(); // Parse the JSON response
 
       toast.success("Recipe generated successfully!");
+      setIngredientsList([]);
+      setMembers("");
 
       // Fetch all updated recipes
       fetchUserRecipes();
@@ -64,6 +68,8 @@ const RecipeForm = ({
     } catch (error) {
       console.error("Error submitting the form:", error.message);
       toast.error("Failed to submit the form.");
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -88,6 +94,7 @@ const RecipeForm = ({
               onChange={(e) => setIngredient(e.target.value)}
               onKeyDown={handleKeyDown}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={loading} // Disable during loading
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -121,6 +128,7 @@ const RecipeForm = ({
               value={members}
               onChange={(e) => setMembers(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={loading} // Disable during loading
             />
           </div>
           <div>
@@ -135,6 +143,7 @@ const RecipeForm = ({
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={loading} // Disable during loading
             >
               <option value="Indian">Indian</option>
               <option value="Chinese">Chinese</option>
@@ -144,10 +153,21 @@ const RecipeForm = ({
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 rounded-lg hover:scale-105 transform transition duration-300"
+            disabled={loading} // Disable button during loading
           >
-            Submit
+            {loading ? "Generating..." : "Submit"} {/* Show loading text */}
           </button>
         </form>
+        {loading && (
+          <div className="mt-4">
+            <div className="flex justify-center items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+            <p className="text-center mt-2 text-blue-500">
+              Generating Recipe...
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Recipes Section */}
@@ -165,7 +185,7 @@ const RecipeForm = ({
             <div className="text-center mt-2">No Creation Yet</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
             {recipes.map((recipe, index) => (
               <RecipeCard
                 key={index}
