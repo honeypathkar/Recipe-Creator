@@ -15,6 +15,7 @@ const RecipeForm = ({
   const [ingredientsList, setIngredientsList] = useState([]);
   const [members, setMembers] = useState("");
   const [cuisine, setCuisine] = useState("Indian");
+  const [language, setLanguage] = useState("English");
   const [loading, setLoading] = useState(false); // Loading state
 
   const handleAddIngredient = (e) => {
@@ -41,6 +42,7 @@ const RecipeForm = ({
       ingredients: ingredientsList,
       members: members,
       cuisine: cuisine,
+      language: language,
     };
 
     setLoading(true); // Start loading
@@ -133,6 +135,23 @@ const RecipeForm = ({
           </div>
           <div>
             <label
+              htmlFor="language"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Choose Language
+            </label>
+            <input
+              type="text"
+              id="language"
+              placeholder="Choose language as you desired"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={loading} // Disable during loading
+            />
+          </div>
+          <div>
+            <label
               htmlFor="cuisine"
               className="block text-gray-700 font-medium mb-2"
             >
@@ -148,6 +167,13 @@ const RecipeForm = ({
               <option value="Indian">Indian</option>
               <option value="Chinese">Chinese</option>
               <option value="Italian">Italian</option>
+              <option value="German">German</option>
+              <option value="American">American</option>
+              <option value="Turkish">Turkish</option>
+              <option value="Russian">Russian</option>
+              <option value="French">French</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Mexican">Mexican</option>
             </select>
           </div>
           <button
