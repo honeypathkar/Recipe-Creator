@@ -23,8 +23,13 @@ const RecipeCard = ({
 
   // Function to handle favorite button click
   const handleFavoriteClick = async () => {
+    const isFavorite = favorites.some((fav) => fav._id === _id);
+    const url = isFavorite
+      ? "http://localhost:5001/removeFav" // Use remove route if already favorited
+      : "http://localhost:5001/favorite"; // Use add route if not favorited
+
     try {
-      const response = await fetch("http://localhost:5001/favorite", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,8 +39,10 @@ const RecipeCard = ({
       });
 
       if (response.ok) {
-        // setIsFavorited((prev) => !prev); // Toggle favorite status
-        toast.success("Recipe added to favorites!");
+        const message = isFavorite
+          ? "Recipe removed from favorites!"
+          : "Recipe added to favorites!";
+        toast.success(message);
         fetchUserFavRecipes();
         fetchUserData();
       } else {
@@ -72,8 +79,6 @@ const RecipeCard = ({
       toast.error("Failed to delete recipe");
     }
   };
-
-  console.log(favorites);
 
   return (
     <div className="max-w-xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">

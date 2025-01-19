@@ -344,6 +344,49 @@ app.get("/userFav", verifyToken, async (req, res) => {
   }
 });
 
+app.post("/removeFav", verifyToken, async (req, res) => {
+  try {
+    // Retrieve the recipe ID from the request body
+    const { recipeId } = req.body;
+
+    // Check if the recipe exists in the database
+    const recipe = await Recipe.findById(recipeId);
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    // Retrieve the user from the token (added by verifyToken middleware)
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find the favorite entry to be removed
+    const favorite = await Favorite.findOneAndDelete({
+      user: user._id,
+      recipe: recipe._id,
+    });
+
+    if (!favorite) {
+      return res
+        .status(404)
+        .json({ message: "Favorite entry not found for this recipe" });
+    }
+
+    // Remove the favorite ID from the user's favorites array
+    user.favorites = user.favorites.filter(
+      (favId) => favId.toString() !== favorite._id.toString()
+    );
+    await user.save();
+
+    // Respond with a success message
+    res.status(200).json({ message: "Recipe removed from favorites" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 connectDB();
 
 app.listen(PORT, () => {
