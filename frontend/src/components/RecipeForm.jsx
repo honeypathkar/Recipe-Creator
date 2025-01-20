@@ -47,12 +47,15 @@ const RecipeForm = ({
 
     setLoading(true); // Start loading
     try {
-      const response = await fetch("http://localhost:5001/generate-recipe", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/generate-recipe",
+        {
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify(formData),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

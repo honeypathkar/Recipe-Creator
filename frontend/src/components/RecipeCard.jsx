@@ -25,8 +25,8 @@ const RecipeCard = ({
   const handleFavoriteClick = async () => {
     const isFavorite = favorites.some((fav) => fav._id === _id);
     const url = isFavorite
-      ? "http://localhost:5001/removeFav" // Use remove route if already favorited
-      : "http://localhost:5001/favorite"; // Use add route if not favorited
+      ? "https://recipe-creator-4zf3.vercel.app/removeFav" // Use remove route if already favorited
+      : "https://recipe-creator-4zf3.vercel.app/favorite"; // Use add route if not favorited
 
     try {
       const response = await fetch(url, {

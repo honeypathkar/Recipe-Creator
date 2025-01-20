@@ -76,8 +76,7 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      // sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-origin cookies in production
-      // path: "/",
+      sameSite: "none",
       expiresIn: "1h",
     });
 
@@ -87,7 +86,6 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
     res.status(500).json({ error: "Failed to register user" });
   }
 });
-
 app.post("/userLogin", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -108,9 +106,8 @@ app.post("/userLogin", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS in production
-      // sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-origin cookies in production
-      // path: "/",
+      secure: true,
+      sameSite: "none", // Allow cross-origin cookies in production
       expiresIn: "1h",
     });
 
