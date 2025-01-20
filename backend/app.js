@@ -75,8 +75,8 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS in production
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-origin cookies in production
       path: "/",
     });
 
@@ -107,8 +107,8 @@ app.post("/userLogin", async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS in production
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-origin cookies in production
       path: "/",
     });
 
