@@ -16,6 +16,7 @@ function App() {
   const [user, setUser] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchUserRecipes = async () => {
     try {
@@ -39,6 +40,7 @@ function App() {
   };
 
   const fetchUserData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         "https://recipe-creator-4zf3.vercel.app/profile",
@@ -54,6 +56,8 @@ function App() {
       setUser(data);
     } catch (error) {
       console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,7 +135,9 @@ function App() {
           />
           <Route
             path="/settings"
-            element={<SettingScreen user={user} setUser={setUser} />}
+            element={
+              <SettingScreen user={user} setUser={setUser} loading={loading} />
+            }
           />
           <Route path="/recipe/:id" element={<DetailScreen />} />
         </Route>

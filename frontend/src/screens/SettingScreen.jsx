@@ -3,10 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-const SettingScreen = ({ user, setUser }) => {
+const SettingScreen = ({ user, setUser, loading }) => {
   const navigate = useNavigate();
-
-  // window.location.reload();
 
   const handleDeleteAccount = async () => {
     Swal.fire({
@@ -67,6 +65,15 @@ const SettingScreen = ({ user, setUser }) => {
     }
   };
 
+  if (loading) {
+    // Spinner while loading
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center items-center p-6">
       <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6">
@@ -82,7 +89,6 @@ const SettingScreen = ({ user, setUser }) => {
             alt={user.name || "Profile Image"}
             className="w-20 h-20 rounded-full border border-gray-300 shadow-md"
           />
-
           <div className="ml-4">
             <h2 className="text-xl font-bold text-gray-800">{user.name}</h2>
             <p className="text-gray-600">{user.email}</p>

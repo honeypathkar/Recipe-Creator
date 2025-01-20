@@ -14,6 +14,7 @@ function RegisterPage() {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -43,6 +44,7 @@ function RegisterPage() {
     if (formData.image) {
       data.append("image", formData.image);
     }
+    setLoading(true); // Set loading to true when the form is submitted
 
     try {
       const response = await fetch(
@@ -66,6 +68,8 @@ function RegisterPage() {
     } catch (err) {
       console.error("Error submitting the form:", err);
       toast.error("Error occurred. Try again later.");
+    } finally {
+      setLoading(false); // Set loading to false once the process is complete
     }
   };
 
@@ -180,8 +184,16 @@ function RegisterPage() {
           <button
             type="submit"
             className="w-full bg-[#2418ff] text-white py-2 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200"
+            disabled={loading} // Disable the button when loading
           >
-            Create Account
+            {loading ? (
+              <div className="flex justify-center items-center space-x-2">
+                <div class="w-8 h-8 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"></div>
+                <span>Creating...</span>
+              </div>
+            ) : (
+              "Create Account"
+            )}
           </button>
           <div className="flex justify-center mt-5">
             Already have an account?&nbsp;
