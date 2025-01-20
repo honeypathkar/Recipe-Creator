@@ -19,10 +19,13 @@ function App() {
 
   const fetchUserRecipes = async () => {
     try {
-      const response = await fetch("http://localhost:5001/userRecipes", {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/userRecipes",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch user recipes");
@@ -37,10 +40,13 @@ function App() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("http://localhost:5001/profile", {
-        credentials: "include",
-        method: "GET",
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/profile",
+        {
+          credentials: "include",
+          method: "GET",
+        }
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.statusText}`);
       }
@@ -53,10 +59,13 @@ function App() {
 
   const fetchUserFavRecipes = async () => {
     try {
-      const response = await fetch("http://localhost:5001/userFav", {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/userFav",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch user recipes");

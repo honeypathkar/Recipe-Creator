@@ -45,10 +45,13 @@ function RegisterPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5001/userRegister", {
-        method: "POST",
-        body: data,
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/userRegister",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
 
       const result = await response.json();
       if (response.ok) {

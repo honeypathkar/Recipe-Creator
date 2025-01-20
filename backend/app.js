@@ -75,7 +75,7 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production", // Only use cookies over HTTPS in production
+      secure: true,
       // sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Allow cross-origin cookies in production
       // path: "/",
       expiresIn: "1h",

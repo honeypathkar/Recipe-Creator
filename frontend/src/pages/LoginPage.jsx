@@ -21,12 +21,15 @@ function LoginPage({ setUser }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5001/userLogin", {
-        method: "POST",
-        credentials: "include", // Important for cookies
-        body: JSON.stringify(formData),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/userLogin",
+        {
+          method: "POST",
+          credentials: "include", // Important for cookies
+          body: JSON.stringify(formData),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       const result = await response.json();
 
       if (response.ok) {

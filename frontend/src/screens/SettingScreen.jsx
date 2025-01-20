@@ -20,12 +20,15 @@ const SettingScreen = ({ user, setUser }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await fetch("http://localhost:5001/delete", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user.email }),
-          });
+          const response = await fetch(
+            "https://recipe-creator-4zf3.vercel.app/delete",
+            {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: user.email }),
+            }
+          );
           const data = await response.json();
           if (response.ok) {
             Swal.fire("Deleted!", "Your account has been deleted.", "success");
@@ -44,10 +47,13 @@ const SettingScreen = ({ user, setUser }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5001/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/logout",
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
       if (response.ok) {
         setUser([]);
         navigate("/login");
