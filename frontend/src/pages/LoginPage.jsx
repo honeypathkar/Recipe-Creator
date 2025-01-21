@@ -153,7 +153,7 @@ function LoginPage({ setUser }) {
           >
             {loading ? (
               <div className="flex justify-center items-center space-x-2">
-                <div class="w-8 h-8 border-4 border-t-blue-500 border-gray-300 rounded-full animate-spin"></div>
+                <div class="w-8 h-8 border-4 border-t-[#2418ff] border-white rounded-full animate-spin"></div>
                 <span>Logging in...</span>
               </div>
             ) : (
