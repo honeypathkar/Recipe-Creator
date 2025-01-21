@@ -17,7 +17,7 @@ const PORT = 5001;
 
 const clientUrl =
   process.env.NODE_ENV === "production"
-    ? "https://recipe-creator-ai.netlify.app/"
+    ? "https://recipe-creator-ai.netlify.app"
     : "http://localhost:5173";
 
 app.use(cors({ credentials: true, origin: clientUrl }));
@@ -79,10 +79,10 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV === "production" ? false : true, // Adjust based on environment
-      secure: true,
-      sameSite: "none", // Allow cross-origin cookies in production
-      expiresIn: "1h",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none", // Required for cross-origin cookies
+      expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
     });
 
     res.status(200).json({ message: "User registered successfully!" });
@@ -110,10 +110,10 @@ app.post("/userLogin", async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV === "production" ? false : true, // Adjust based on environment
-      secure: true,
-      sameSite: "none", // Allow cross-origin cookies in production
-      expiresIn: "1h",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none", // Required for cross-origin cookies
+      expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
     });
 
     res.status(200).json({ message: "Login successful" });
