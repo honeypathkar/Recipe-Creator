@@ -16,7 +16,9 @@ const app = express();
 const PORT = 5001;
 
 const clientUrl =
-  "http://localhost:5173" || "https://recipe-creator-ai.netlify.app/";
+  process.env.NODE_ENV === "production"
+    ? "https://recipe-creator-ai.netlify.app/"
+    : "http://localhost:5173";
 
 app.use(cors({ credentials: true, origin: clientUrl }));
 app.use(bodyParser.json());
