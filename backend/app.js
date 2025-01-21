@@ -77,9 +77,9 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === "production" ? false : true, // Adjust based on environment
       secure: true,
-      sameSite: "none",
+      sameSite: "none", // Allow cross-origin cookies in production
       expiresIn: "1h",
     });
 
@@ -108,7 +108,7 @@ app.post("/userLogin", async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === "production" ? false : true, // Adjust based on environment
       secure: true,
       sameSite: "none", // Allow cross-origin cookies in production
       expiresIn: "1h",
