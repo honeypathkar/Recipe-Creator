@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaCamera, FaTimes, FaEyeSlash, FaEye } from "react-icons/fa";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion"; // Import framer-motion
@@ -10,9 +10,7 @@ function RegisterPage() {
     name: "",
     email: "",
     password: "",
-    image: null,
   });
-  const [imagePreview, setImagePreview] = useState(null);
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
@@ -22,40 +20,25 @@ function RegisterPage() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeImage = () => {
-    setFormData({ ...formData, image: null });
-    setImagePreview(null);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("password", formData.password);
-    if (formData.image) {
-      data.append("image", formData.image);
-    }
-    setLoading(true); // Set loading to true when the form is submitted
+    setLoading(true);
 
     try {
       const response = await fetch(
         "https://recipe-creator-4zf3.vercel.app/userRegister",
         {
           method: "POST",
-          body: data,
+          headers: {
+            "Content-Type": "application/json", // Set the correct content type
+          },
+          body: JSON.stringify(formData), // Send the data as JSON
+          credentials: "include",
         }
       );
 
       const result = await response.json();
+
       if (response.ok) {
         navigate("/login");
         toast.success("Register Successfully");
@@ -69,7 +52,7 @@ function RegisterPage() {
       console.error("Error submitting the form:", err);
       toast.error("Error occurred. Try again later.");
     } finally {
-      setLoading(false); // Set loading to false once the process is complete
+      setLoading(false);
     }
   };
 
@@ -87,41 +70,6 @@ function RegisterPage() {
           onSubmit={handleSubmit}
         >
           <h2 className="text-2xl font-bold mb-6 text-center">Register Form</h2>
-
-          {/* Image Upload Section */}
-          <div className="mb-6 flex flex-col items-center">
-            {imagePreview ? (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Uploaded Preview"
-                  className="w-24 h-24 rounded-full object-cover border border-gray-300"
-                />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full focus:outline-none"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            ) : (
-              <div className="relative w-24 h-24 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
-                <label htmlFor="image" className="cursor-pointer text-gray-500">
-                  <FaCamera size={24} />
-                </label>
-                <input
-                  id="image"
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  required
-                  onChange={handleImageChange}
-                />
-              </div>
-            )}
-          </div>
 
           {/* Name Field */}
           <div className="mb-4">

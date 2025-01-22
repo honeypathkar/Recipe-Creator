@@ -80,15 +80,6 @@ const SettingScreen = ({ user, setUser, loading }) => {
         {/* Profile Section */}
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">Profile</h1>
         <div className="flex items-center">
-          <img
-            src={
-              user.image && user.contentType
-                ? `data:${user.contentType};base64,${user.image}`
-                : "https://via.placeholder.com/150"
-            }
-            alt={user.name || "Profile Image"}
-            className="w-20 h-20 rounded-full border border-gray-300 shadow-md"
-          />
           <div className="ml-4">
             <h2 className="text-xl font-bold text-gray-800">{user.name}</h2>
             <p className="text-gray-600">{user.email}</p>

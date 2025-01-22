@@ -21,7 +21,7 @@ import { Outlet } from "react-router-dom"; // Import Outlet to render nested rou
 
 const drawerWidth = 240;
 
-function AppDrawer({ user }) {
+function AppDrawer() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -69,30 +69,6 @@ function AppDrawer({ user }) {
         </ListItem>
       </List>
       <Divider />
-      {user && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            padding: 2,
-            bgcolor: "background.paper",
-          }}
-        >
-          <Avatar
-            src={`data:${user.contentType || "image/png"};base64,${user.image}`}
-            alt={user.name}
-            sx={{ mr: 2 }}
-          />
-          <Box>
-            <Typography variant="body1" noWrap>
-              {user.name}
-            </Typography>
-            <Typography variant="body2" color="textSecondary" noWrap>
-              {user.email}
-            </Typography>
-          </Box>
-        </Box>
-      )}
     </Box>
   );
 

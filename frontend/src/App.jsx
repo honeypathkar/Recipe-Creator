@@ -97,7 +97,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Layout Route for AppDrawer */}
-        <Route element={<AppDrawer user={user} />}>
+        <Route element={<AppDrawer />}>
           <Route
             path="/home"
             element={

@@ -17,11 +17,6 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
     },
-    image: {
-      type: String,
-      required: [true, "Profile image is required"],
-    },
-    contentType: { type: String, required: [true] },
     recipes: [
       {
         type: mongoose.Schema.Types.ObjectId,

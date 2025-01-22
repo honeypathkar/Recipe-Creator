@@ -1,5 +1,4 @@
 const express = require("express");
-const multer = require("multer");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
@@ -24,9 +23,6 @@ app.use(cors({ credentials: true, origin: clientUrl }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-
 const verifyToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
@@ -45,7 +41,7 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.post("/userRegister", upload.single("image"), async (req, res) => {
+app.post("/userRegister", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -54,10 +50,8 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
       return res.status(400).json({ error: "User already exists" });
     }
 
-    if (!name || !email || !password || !req.file) {
-      return res
-        .status(400)
-        .json({ error: "All fields, including an image, are required" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -67,8 +61,6 @@ app.post("/userRegister", upload.single("image"), async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      image: req.file.buffer.toString("base64"),
-      contentType: req.file.mimetype,
     });
 
     await newUser.save();
