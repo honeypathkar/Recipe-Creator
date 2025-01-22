@@ -57,14 +57,17 @@ const RecipeCard = ({
   // Function to handle delete button click
   const handleDelete = async () => {
     try {
-      const response = await fetch("http://localhost:5001/delete-recipe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ recipeId: _id }),
-        credentials: "include",
-      });
+      const response = await fetch(
+        "https://recipe-creator-4zf3.vercel.app/delete-recipe",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ recipeId: _id }),
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
         toast.success("Recipe deleted!");
