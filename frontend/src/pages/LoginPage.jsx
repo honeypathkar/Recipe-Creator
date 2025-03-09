@@ -23,15 +23,12 @@ function LoginPage({ setUser }) {
     e.preventDefault();
     setLoading(true); // Set loading to true when the form is submitted
     try {
-      const response = await fetch(
-        "https://recipe-creator-4zf3.vercel.app/userLogin",
-        {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify(formData),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch("http://localhost:5001/userLogin", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+      });
       const result = await response.json();
 
       if (response.ok) {

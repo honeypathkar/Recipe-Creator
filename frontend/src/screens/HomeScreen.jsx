@@ -1,11 +1,21 @@
 import { Create, Favorite } from "@mui/icons-material";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns"; // Import the required function
 import { motion } from "framer-motion";
+import RecipeCard from "../components/RecipeCard";
 
-const HomeScreen = ({ recipes, favorites }) => {
+const HomeScreen = ({
+  recipes,
+  favorites,
+  user,
+  fetchUserData,
+  fetchUserFavRecipes,
+  fetchUserRecipes,
+}) => {
   const navigate = useNavigate();
+  const [allRecipes, setAllRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Get the createdAt timestamp from the most recent recipe
   const createdAt = recipes[recipes.length - 1]?.createdAt;
@@ -24,6 +34,24 @@ const HomeScreen = ({ recipes, favorites }) => {
     addedAt && !isNaN(new Date(addedAt).getTime())
       ? formatDistanceToNow(new Date(addedAt), { addSuffix: true })
       : "";
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/allRecipe", {
+          method: "GET",
+        });
+        const data = await response.json();
+        setAllRecipes(data);
+      } catch (error) {
+        console.error("Error fetching recipes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
 
   return (
     <motion.div
@@ -112,6 +140,28 @@ const HomeScreen = ({ recipes, favorites }) => {
               </div>
             </li>
           </ul>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : recipes.length === 0 ? (
+            <p>No recipes available.</p>
+          ) : (
+            <div className="grid md:grid-cols-1 lg:grid-cols-2 grid-cols-1 gap-4">
+              {recipes.map((allRecipes) => (
+                <RecipeCard
+                  key={allRecipes._id}
+                  recipe={allRecipes}
+                  favorites={favorites}
+                  fetchUserRecipes={fetchUserRecipes}
+                  fetchUserFavRecipes={fetchUserFavRecipes}
+                  fetchUserData={fetchUserData}
+                  user={user}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

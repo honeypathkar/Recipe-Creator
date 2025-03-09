@@ -19,6 +19,14 @@ const clientUrl =
     ? "https://recipe-creator-ai.netlify.app"
     : "http://localhost:5173";
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  path: "/",
+  expires: new Date(Date.now() + 60 * 60 * 1000),
+};
+
 app.use(cors({ credentials: true, origin: clientUrl }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -70,12 +78,7 @@ app.post("/userRegister", async (req, res) => {
       process.env.JWT_SECRET
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // Required for cross-origin cookies
-      expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-    });
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({ message: "User registered successfully!" });
   } catch (error) {
@@ -101,12 +104,7 @@ app.post("/userLogin", async (req, res) => {
       process.env.JWT_SECRET
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none", // Required for cross-origin cookies
-      expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-    });
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({ message: "Login successful" });
   } catch (error) {

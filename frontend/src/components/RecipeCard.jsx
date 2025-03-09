@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
 import { FaRegTrashAlt, FaHeart } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { FaShare } from "react-icons/fa";
 
 const RecipeCard = ({
   recipe,
@@ -83,10 +84,44 @@ const RecipeCard = ({
     }
   };
 
+  // Function to handle sharing the recipe
+  const handleShareClick = () => {
+    const recipeUrl = `${window.location.origin}/recipe/${_id}`;
+    const shareData = {
+      title: `Check out this recipe: ${title}`,
+      text: `Here's an amazing recipe for ${title}!`,
+      url: recipeUrl,
+    };
+
+    if (navigator.share) {
+      // Use the Web Share API
+      navigator
+        .share(shareData)
+        .then(() => {
+          toast.success("Recipe shared successfully!");
+        })
+        .catch((error) => {
+          console.error("Error sharing the recipe:", error);
+          toast.error("Failed to share the recipe.");
+        });
+    } else {
+      // Fallback: Copy the link to the clipboard
+      navigator.clipboard
+        .writeText(recipeUrl)
+        .then(() => {
+          toast.success("Recipe link copied to clipboard!");
+        })
+        .catch((error) => {
+          console.error("Error copying the recipe link:", error);
+          toast.error("Failed to copy the recipe link.");
+        });
+    }
+  };
+
   return (
     <div className="max-w-xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
       {/* Favorite Button with conditional color change */}
-      <div className="flex items-center">
+      <div className="flex items-center justify-center relative flex-col">
         <button
           onClick={handleFavoriteClick}
           className={`absolute top-4 right-4 focus:outline-none rounded-full p-3 border-2 ${
@@ -100,6 +135,12 @@ const RecipeCard = ({
           ) : (
             <CiHeart size={30} className="text-gray-500" />
           )}
+        </button>
+        <button
+          className="absolute top-4 right-20 focus:outline-none rounded-full p-3 border-2 border-gray-600"
+          onClick={handleShareClick}
+        >
+          <FaShare size={30} className="text-gray-500" />
         </button>
       </div>
 
