@@ -4,6 +4,8 @@ import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import LoginImage from "../images/login-image.png";
+import { LoginUrl } from "../../API";
+import axios from "axios";
 
 function LoginPage({ setUser }) {
   const [formData, setFormData] = useState({
@@ -11,7 +13,7 @@ function LoginPage({ setUser }) {
     password: "",
   });
   const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -21,33 +23,33 @@ function LoginPage({ setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when the form is submitted
-    try {
-      const response = await fetch(
-        "https://recipe-creator-4zf3.vercel.app/userLogin",
-        {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify(formData),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      const result = await response.json();
+    setLoading(true);
 
-      if (response.ok) {
-        setUser(result);
-        navigate("/home", { replace: true });
-        toast.success("Login Successful");
-        window.history.pushState(null, document.title, location.href);
-        window.location.reload();
-      } else {
-        toast.error(result.error || "Login Failed");
-      }
+    try {
+      const response = await axios.post(
+        LoginUrl, // Using API constant
+        formData,
+        { withCredentials: true } // Enables sending cookies
+      );
+
+      const { token, user } = response.data;
+      console.log(response.data);
+
+      // Store token in localStorage
+      localStorage.setItem("authToken", token);
+
+      setUser(user);
+      toast.success("Login Successful");
+      navigate("/home", { replace: true });
+
+      // Prevent back navigation and reload
+      window.history.pushState(null, document.title, location.href);
+      window.location.reload();
     } catch (error) {
-      console.error("Error during login:", error);
-      toast.error("Login failed. Please try again later.");
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.error || "Login Failed");
     } finally {
-      setLoading(false); // Set loading to false once the process is complete
+      setLoading(false);
     }
   };
 
@@ -57,30 +59,18 @@ function LoginPage({ setUser }) {
       window.history.pushState(null, document.title, location.href);
 
     window.addEventListener("popstate", preventBack);
-
     return () => {
       window.removeEventListener("popstate", preventBack);
     };
   }, []);
-
-  const imageVariants = {
-    hidden: { opacity: 0, x: -200 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, x: 200 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
-  };
 
   return (
     <div className="flex flex-wrap min-h-screen">
       {/* Image Section */}
       <motion.div
         className="hidden lg:flex items-center justify-center bg-white w-full lg:w-1/2"
-        initial="hidden"
-        animate="visible"
-        variants={imageVariants}
+        initial={{ opacity: 0, x: -200 }}
+        animate={{ opacity: 1, x: 0, transition: { duration: 0.8 } }}
       >
         <img
           src={LoginImage}
@@ -92,9 +82,8 @@ function LoginPage({ setUser }) {
       {/* Form Section */}
       <motion.div
         className="flex items-center justify-center w-full lg:w-1/2 lg:bg-[#2418ff] bg-gray-100"
-        initial="hidden"
-        animate="visible"
-        variants={formVariants}
+        initial={{ opacity: 0, x: 200 }}
+        animate={{ opacity: 1, x: 0, transition: { duration: 0.8 } }}
       >
         <motion.form
           className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md"
@@ -149,11 +138,11 @@ function LoginPage({ setUser }) {
           <button
             type="submit"
             className="w-full bg-[#2418ff] text-white py-2 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200"
-            disabled={loading} // Disable the button when loading
+            disabled={loading}
           >
             {loading ? (
               <div className="flex justify-center items-center space-x-2">
-                <div class="w-8 h-8 border-4 border-t-[#2418ff] border-white rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-4 border-t-[#2418ff] border-white rounded-full animate-spin"></div>
                 <span>Logging in...</span>
               </div>
             ) : (

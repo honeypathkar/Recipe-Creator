@@ -1,0 +1,13 @@
+const BASE_API = import.meta.env.VITE_REACT_APP_BASE_API_URL;
+export const LoginUrl = `${BASE_API}/userLogin`;
+export const RegisterUrl = `${BASE_API}/userRegister`;
+export const RecipeUrl = `${BASE_API}/recipes`;
+export const RecipeCreateUrl = `${BASE_API}/generate-recipe`;
+export const RecipeDeleteUrl = `${BASE_API}/delete-recipe`;
+export const GetUserRecipesUrl = `${BASE_API}/userRecipes`;
+export const UserProfileUrl = `${BASE_API}/profile`;
+export const UserDeleteUrl = `${BASE_API}/delete`;
+export const AddToFavUrl = `${BASE_API}/favorite`;
+export const GetFavUrl = `${BASE_API}/userFav`;
+export const RemoveFavUrl = `${BASE_API}/removeFav`;
+export const LogoutUrl = `${BASE_API}/logout`;

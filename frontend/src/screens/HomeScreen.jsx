@@ -17,6 +17,11 @@ const HomeScreen = ({
   const [allRecipes, setAllRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    console.log("Auth token :", token);
+  }, []);
+
   // Get the createdAt timestamp from the most recent recipe
   const createdAt = recipes[recipes.length - 1]?.createdAt;
   // const addedAt = favorites[favorites.length - 1]?.addedAt;

@@ -88,7 +88,9 @@ app.post("/userRegister", async (req, res) => {
 
     res.cookie("token", token, cookieOptions);
 
-    res.status(200).json({ message: "User registered successfully!" });
+    res
+      .status(200)
+      .json({ message: "User registered successfully!", token: token });
   } catch (error) {
     console.error("Error saving user:", error);
     res.status(500).json({ error: "Failed to register user" });
@@ -114,7 +116,7 @@ app.post("/userLogin", async (req, res) => {
 
     res.cookie("token", token, cookieOptions);
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: "Login successful", token: token });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error" });
