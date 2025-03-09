@@ -14,10 +14,10 @@ require("dotenv").config();
 const app = express();
 const PORT = 5001;
 
-const clientUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://recipe-creator-ai.netlify.app"
-    : "http://localhost:5173";
+// const clientUrl =
+//   process.env.NODE_ENV === "production"
+//     ? "https://recipe-creator-ai.netlify.app"
+//     : "http://localhost:5173";
 
 const cookieOptions = {
   httpOnly: true,
@@ -27,7 +27,15 @@ const cookieOptions = {
   expires: new Date(Date.now() + 60 * 60 * 1000),
 };
 
-app.use(cors({ credentials: true, origin: clientUrl }));
+// app.use(cors({ credentials: true, origin: clientUrl }));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://recipe-creator-ai.netlify.app"],
+    credentials: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type",
+  })
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 
