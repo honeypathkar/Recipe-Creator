@@ -207,56 +207,30 @@ app.post("/generate-recipe", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/delete-recipe", verifyToken, async (req, res) => {
+app.delete("/delete-recipe", verifyToken, async (req, res) => {
   try {
     const { recipeId } = req.body;
 
-    // Find the recipe by its ID
-    const recipe = await Recipe.findById(recipeId);
-    if (!recipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    // Delete the recipe from Recipe collection
-    await Recipe.findByIdAndDelete(recipeId);
-
-    // Delete the associated Favorite document if it exists
-    const favorite = await Favorite.findOneAndDelete({ recipe: recipeId });
-    if (favorite) {
-      console.log("Favorite deleted successfully");
-    } else {
-      console.log("No favorite entry found for this recipe");
-    }
-
-    // Find the user who is requesting to delete the recipe
+    // Ensure the user exists
     const user = await User.findOne({ email: req.user.email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Check if the user owns the recipe before deleting
+    if (!user.recipes.includes(recipeId)) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this recipe" });
     }
 
-    // Check if recipe exists in user's recipes and favorites
-    const recipeIndex = user.recipes.indexOf(recipeId);
-    const favoriteIndex = user.favorites.indexOf(
-      favorite ? favorite._id : null
-    );
-
-    // If the recipe exists in recipes list, remove it
-    if (recipeIndex !== -1) {
-      user.recipes.splice(recipeIndex, 1); // Remove from recipes
-    }
-
-    // If the recipe exists in favorites list, remove it
-    if (favoriteIndex !== -1) {
-      user.favorites.splice(favoriteIndex, 1); // Remove from favorites
-    }
-
-    // Save the user after modification
+    // Delete recipe and remove from user's list
+    await Recipe.findByIdAndDelete(recipeId);
+    user.recipes = user.recipes.filter((id) => id.toString() !== recipeId);
+    user.favorites = user.favorites.filter((id) => id.toString() !== recipeId);
     await user.save();
 
-    // Respond back
-    res
-      .status(200)
-      .json({ message: "Recipe Deleted from both Recipes and Favorites" });
+    await Favorite.findOneAndDelete({ recipe: recipeId });
+
+    res.status(200).json({ message: "Recipe successfully deleted" });
   } catch (error) {
     console.error("Error deleting recipe:", error);
     res.status(500).json({ message: "Server error" });

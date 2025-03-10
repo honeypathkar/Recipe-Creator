@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
 import NoRecipeImage from "../images/no-favorite.png";
 import axios from "axios";
+import { AddCircleOutline, CloseSharp } from "@mui/icons-material";
 
 const RecipeForm = ({
   fetchUserData,
@@ -85,24 +86,34 @@ const RecipeForm = ({
       <div className="bg-white rounded-lg border-[1px] border-gray-300 shadow-lg p-8 w-full max-w-3xl">
         <h2 className="text-3xl font-bold text-center mb-8">Recipe Form</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="ingredients"
-              className="block text-gray-700 font-medium mb-2"
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label
+                htmlFor="ingredients"
+                className="block text-gray-700 font-medium mb-2"
+              >
+                Ingredients
+              </label>
+              <input
+                type="text"
+                id="ingredients"
+                placeholder="Enter ingredient"
+                value={ingredient}
+                onChange={(e) => setIngredient(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={loading} // Disable during loading
+              />
+            </div>
+            <button
+              onClick={handleAddIngredient} // Ensure this function is defined
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:scale-105 transform transition duration-300 cursor-pointer disabled:bg-gray-400"
+              disabled={loading || !ingredient.trim()} // Disable when loading or input is empty
             >
-              Ingredients
-            </label>
-            <input
-              type="text"
-              id="ingredients"
-              placeholder="Enter ingredient"
-              value={ingredient}
-              onChange={(e) => setIngredient(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={loading} // Disable during loading
-            />
+              <AddCircleOutline /> Add Ingredient
+            </button>
           </div>
+
           <div className="flex flex-wrap gap-2">
             {ingredientsList.map((item, index) => (
               <span
@@ -113,9 +124,9 @@ const RecipeForm = ({
                 <button
                   type="button"
                   onClick={() => removeIngredient(item)}
-                  className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                  className="ml-2 focus:outline-none"
                 >
-                  ❌
+                  <CloseSharp />
                 </button>
               </span>
             ))}

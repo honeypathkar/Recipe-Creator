@@ -62,18 +62,20 @@ const RecipeCard = ({
   // Function to handle delete button click
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("auhtToken");
-      const response = await axios.post(
-        RecipeDeleteUrl,
-        { recipeId: _id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
+      const token = localStorage.getItem("authToken"); // Check the correct key
+      if (!token) {
+        toast.error("Authentication token is missing!");
+        return;
+      }
+
+      const response = await axios.delete(RecipeDeleteUrl, {
+        data: { recipeId: _id }, // Correct way to send data in DELETE request
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
 
       if (response.status === 200) {
         toast.success("Recipe deleted!");
