@@ -4,6 +4,8 @@ import { CiHeart } from "react-icons/ci";
 import { FaRegTrashAlt, FaHeart } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { FaShare } from "react-icons/fa";
+import { AddToFavUrl, RecipeDeleteUrl, RemoveFavUrl } from "../../API";
+import axios from "axios";
 
 const RecipeCard = ({
   recipe,
@@ -25,27 +27,29 @@ const RecipeCard = ({
   // Function to handle favorite button click
   const handleFavoriteClick = async () => {
     const isFavorite = favorites.some((fav) => fav._id === _id);
-    const url = isFavorite
-      ? "https://recipe-creator-4zf3.vercel.app/removeFav" // Use remove route if already favorited
-      : "https://recipe-creator-4zf3.vercel.app/favorite"; // Use add route if not favorited
+    const url = isFavorite ? RemoveFavUrl : AddToFavUrl; // Determine API route
+    const token = localStorage.getItem("authToken"); // Retrieve token
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ recipeId: _id }),
-        credentials: "include",
-      });
+      const response = await axios.post(
+        url,
+        { recipeId: _id }, // Send data properly
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
+          },
+          withCredentials: true, // Include credentials if needed
+        }
+      );
 
-      if (response.ok) {
+      if (response.status === 200) {
         const message = isFavorite
           ? "Recipe removed from favorites!"
           : "Recipe added to favorites!";
         toast.success(message);
-        fetchUserFavRecipes();
-        fetchUserData();
+        fetchUserFavRecipes(); // Refresh user favorite recipes
+        fetchUserData(); // Refresh user data
       } else {
         throw new Error("Failed to update favorite status");
       }
@@ -58,19 +62,20 @@ const RecipeCard = ({
   // Function to handle delete button click
   const handleDelete = async () => {
     try {
-      const response = await fetch(
-        "https://recipe-creator-4zf3.vercel.app/delete-recipe",
+      const token = localStorage.getItem("auhtToken");
+      const response = await axios.post(
+        RecipeDeleteUrl,
+        { recipeId: _id },
         {
-          method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ recipeId: _id }),
-          credentials: "include",
+          withCredentials: true,
         }
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         toast.success("Recipe deleted!");
         fetchUserRecipes();
         fetchUserFavRecipes();
@@ -79,7 +84,7 @@ const RecipeCard = ({
         throw new Error("Failed to delete recipe");
       }
     } catch (error) {
-      console.error("Error deleting recipe:", error);
+      console.error("Error deleting recipe:", error.message);
       toast.error("Failed to delete recipe");
     }
   };

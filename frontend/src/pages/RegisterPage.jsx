@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion"; // Import framer-motion
 import RegisterImage from "../images/register-image.png";
+import axios from "axios";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -25,32 +26,33 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         "https://recipe-creator-4zf3.vercel.app/userRegister",
+        formData, // Send form data directly
         {
-          method: "POST",
           headers: {
-            "Content-Type": "application/json", // Set the correct content type
+            "Content-Type": "application/json", // Set correct content type
           },
-          body: JSON.stringify(formData), // Send the data as JSON
-          credentials: "include",
+          withCredentials: true, // Include credentials if needed
         }
       );
 
-      const result = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         navigate("/login");
-        toast.success("Register Successfully");
-      } else if (response.status === 400) {
-        toast.error("User already exists");
-      } else {
-        console.error(result.error);
-        toast.error("Failed to register user");
+        toast.success("Registered Successfully");
       }
     } catch (err) {
-      console.error("Error submitting the form:", err);
-      toast.error("Error occurred. Try again later.");
+      if (err.response) {
+        // Handle specific HTTP errors
+        if (err.response.status === 400) {
+          toast.error("User already exists");
+        } else {
+          toast.error(err.response.data.message || "Failed to register user");
+        }
+      } else {
+        console.error("Error submitting the form:", err);
+        toast.error("Error occurred. Try again later.");
+      }
     } finally {
       setLoading(false);
     }

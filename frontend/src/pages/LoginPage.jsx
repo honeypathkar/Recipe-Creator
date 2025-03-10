@@ -54,6 +54,13 @@ function LoginPage({ setUser }) {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      navigate("/home");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     window.history.pushState(null, document.title, location.href);
     const preventBack = () =>
       window.history.pushState(null, document.title, location.href);

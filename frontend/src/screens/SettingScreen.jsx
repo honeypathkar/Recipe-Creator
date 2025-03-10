@@ -1,7 +1,9 @@
+import axios from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { UserDeleteUrl } from "../../API";
 
 const SettingScreen = ({ user, setUser, loading }) => {
   const navigate = useNavigate();
@@ -17,27 +19,32 @@ const SettingScreen = ({ user, setUser, loading }) => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        const token = localStorage.getItem("authToken"); // Get token from localStorage
+
         try {
-          const response = await fetch(
-            "https://recipe-creator-4zf3.vercel.app/delete",
+          const response = await axios.post(
+            UserDeleteUrl,
+            { email: user.email }, // Send user email as body
             {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: user.email }),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Include token in headers
+              },
+              withCredentials: true, // Ensure cookies are sent
             }
           );
-          const data = await response.json();
-          if (response.ok) {
+
+          if (response.status === 200) {
             Swal.fire("Deleted!", "Your account has been deleted.", "success");
-            setUser([]);
+            setUser([]); // Clear user state
+            localStorage.removeItem("authToken");
             navigate("/login");
-          } else {
-            toast.error(data.error || "Failed to delete account.");
           }
         } catch (error) {
           console.error("Error deleting account:", error);
-          toast.error("Error deleting account. Please try again.");
+          toast.error(
+            error.response?.data?.error || "Failed to delete account."
+          );
         }
       }
     });
@@ -54,6 +61,7 @@ const SettingScreen = ({ user, setUser, loading }) => {
       );
       if (response.ok) {
         setUser([]);
+        localStorage.removeItem("authToken");
         navigate("/login");
         toast.success("Logout Successful");
       } else {

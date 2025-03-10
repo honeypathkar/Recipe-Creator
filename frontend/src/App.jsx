@@ -12,6 +12,7 @@ import Alert from "./components/Alert";
 import DetailScreen from "./screens/DetailScreen";
 import "./App.css";
 import { GetFavUrl, GetUserRecipesUrl, UserProfileUrl } from "../API";
+import axios from "axios";
 
 function App() {
   const [user, setUser] = useState([]);
@@ -19,56 +20,63 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  //Logged in user created recipes
   const fetchUserRecipes = async () => {
     try {
-      const response = await fetch(`${GetUserRecipesUrl}`, {
-        method: "GET",
-        credentials: "include",
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(GetUserRecipesUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
       });
 
-      if (!response.ok) {
+      if (!response.status) {
         throw new Error("Failed to fetch user recipes");
       }
 
-      const fetchedRecipes = await response.json();
-      setRecipes(fetchedRecipes);
+      setRecipes(response.data);
     } catch (error) {
       console.error("Error fetching user recipes:", error.message);
     }
   };
 
+  //Logged in user data
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(UserProfileUrl, {
-        credentials: "include",
-        method: "GET",
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(UserProfileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if (!response.ok) {
+      if (!response.status) {
         throw new Error(`Failed to fetch: ${response.statusText}`);
       }
-      const data = await response.json();
-      setUser(data);
+      setUser(response.data);
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching user data:", error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  //Logged in user favorite recipes
   const fetchUserFavRecipes = async () => {
     try {
-      const response = await fetch(`${GetFavUrl}`, {
-        method: "GET",
-        credentials: "include",
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(GetFavUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
       });
 
-      if (!response.ok) {
+      if (!response.status) {
         throw new Error("Failed to fetch user recipes");
       }
-
-      const fetchedFavRecipes = await response.json();
-      setFavorites(fetchedFavRecipes);
+      setFavorites(response.data);
     } catch (error) {
       console.error("Error fetching user recipes:", error.message);
     }

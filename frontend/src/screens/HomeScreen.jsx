@@ -5,7 +5,7 @@ import { formatDistanceToNow } from "date-fns"; // Import the required function
 import { motion } from "framer-motion";
 import RecipeCard from "../components/RecipeCard";
 import { GetAllRecipe } from "../../API";
-import { getUserData } from "../hooks/profile";
+// import { getUserData } from "../hooks/profile";
 
 const HomeScreen = ({
   recipes,
@@ -18,11 +18,6 @@ const HomeScreen = ({
   const navigate = useNavigate();
   const [allRecipes, setAllRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    console.log("Auth token :", token);
-  }, []);
 
   // Get the createdAt timestamp from the most recent recipe
   const createdAt = recipes[recipes.length - 1]?.createdAt;
@@ -59,10 +54,6 @@ const HomeScreen = ({
     };
 
     fetchRecipes();
-  }, []);
-
-  useEffect(() => {
-    getUserData();
   }, []);
 
   return (

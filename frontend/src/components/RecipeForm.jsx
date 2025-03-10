@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import RecipeCard from "./RecipeCard";
 import NoRecipeImage from "../images/no-favorite.png";
+import axios from "axios";
 
 const RecipeForm = ({
   fetchUserData,
@@ -38,6 +39,8 @@ const RecipeForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("authToken"); // Retrieve the token
+
     const formData = {
       ingredients: ingredientsList,
       members: members,
@@ -47,25 +50,23 @@ const RecipeForm = ({
 
     setLoading(true); // Start loading
     try {
-      const response = await fetch(
+      const response = await axios.post(
         "https://recipe-creator-4zf3.vercel.app/generate-recipe",
+        formData, // Send data directly
         {
-          method: "POST",
-          credentials: "include",
-          body: JSON.stringify(formData),
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
+          },
+          withCredentials: true, // Ensure cookies are sent
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.status == 200) {
+        toast.success("Recipe generated successfully!");
+        setIngredientsList([]);
+        setMembers("");
       }
-
-      await response.json(); // Parse the JSON response
-
-      toast.success("Recipe generated successfully!");
-      setIngredientsList([]);
-      setMembers("");
 
       // Fetch all updated recipes
       fetchUserRecipes();
