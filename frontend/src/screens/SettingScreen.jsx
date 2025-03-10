@@ -22,23 +22,19 @@ const SettingScreen = ({ user, setUser, loading }) => {
         const token = localStorage.getItem("authToken"); // Get token from localStorage
 
         try {
-          const response = await axios.post(
-            UserDeleteUrl,
-            { email: user.email }, // Send user email as body
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Include token in headers
-              },
-              withCredentials: true, // Ensure cookies are sent
-            }
-          );
+          const response = await axios.delete(UserDeleteUrl, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // Send token for authentication
+            },
+            withCredentials: true,
+          });
 
           if (response.status === 200) {
             Swal.fire("Deleted!", "Your account has been deleted.", "success");
-            setUser([]); // Clear user state
-            localStorage.removeItem("authToken");
-            navigate("/login");
+            setUser(null); // Clear user state
+            localStorage.removeItem("authToken"); // Remove token
+            navigate("/login"); // Redirect to login page
           }
         } catch (error) {
           console.error("Error deleting account:", error);

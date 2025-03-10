@@ -159,9 +159,9 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 });
 
-app.post("/delete", verifyToken, async (req, res) => {
+app.delete("/delete", verifyToken, async (req, res) => {
   try {
-    const deletedUser = await User.findOneAndDelete({ email: req.body.email });
+    const deletedUser = await User.findOneAndDelete({ email: req.user.email }); // Get email from token
     if (deletedUser) {
       res.status(200).json({ message: "User deleted successfully" });
     } else {
