@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns"; // Import the required function
 import { motion } from "framer-motion";
 import RecipeCard from "../components/RecipeCard";
+import { GetAllRecipe } from "../../API";
+import { getUserData } from "../hooks/profile";
 
 const HomeScreen = ({
   recipes,
@@ -43,11 +45,12 @@ const HomeScreen = ({
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch("http://localhost:5001/allRecipe", {
+        const response = await fetch(GetAllRecipe, {
           method: "GET",
         });
         const data = await response.json();
         setAllRecipes(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching recipes:", error);
       } finally {
@@ -56,6 +59,10 @@ const HomeScreen = ({
     };
 
     fetchRecipes();
+  }, []);
+
+  useEffect(() => {
+    getUserData();
   }, []);
 
   return (

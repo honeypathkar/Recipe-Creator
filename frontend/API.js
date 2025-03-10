@@ -11,3 +11,4 @@ export const AddToFavUrl = `${BASE_API}/favorite`;
 export const GetFavUrl = `${BASE_API}/userFav`;
 export const RemoveFavUrl = `${BASE_API}/removeFav`;
 export const LogoutUrl = `${BASE_API}/logout`;
+export const GetAllRecipe = `${BASE_API}/allRecipe`;

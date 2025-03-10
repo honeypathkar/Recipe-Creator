@@ -33,7 +33,7 @@ app.use(
     origin: ["http://localhost:5173", "https://recipe-creator-ai.netlify.app"],
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Content-Type",
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(bodyParser.json());

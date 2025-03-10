@@ -11,6 +11,7 @@ import { Navigate } from "react-router-dom";
 import Alert from "./components/Alert";
 import DetailScreen from "./screens/DetailScreen";
 import "./App.css";
+import { GetFavUrl, GetUserRecipesUrl, UserProfileUrl } from "../API";
 
 function App() {
   const [user, setUser] = useState([]);
@@ -20,7 +21,7 @@ function App() {
 
   const fetchUserRecipes = async () => {
     try {
-      const response = await fetch("http://localhost:5001/userRecipes", {
+      const response = await fetch(`${GetUserRecipesUrl}`, {
         method: "GET",
         credentials: "include",
       });
@@ -39,7 +40,7 @@ function App() {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5001/profile", {
+      const response = await fetch(UserProfileUrl, {
         credentials: "include",
         method: "GET",
       });
@@ -57,7 +58,7 @@ function App() {
 
   const fetchUserFavRecipes = async () => {
     try {
-      const response = await fetch("http://localhost:5001/userFav", {
+      const response = await fetch(`${GetFavUrl}`, {
         method: "GET",
         credentials: "include",
       });
