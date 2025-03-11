@@ -150,12 +150,7 @@ app.get("/alluser", async (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
-    path: "/",
-  });
+  res.clearCookie("token", cookieOptions);
   res.status(200).json({ message: "Logout successful" });
 });
 

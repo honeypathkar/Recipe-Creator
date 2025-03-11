@@ -126,28 +126,31 @@ const RecipeCard = ({
   };
 
   return (
-    <div className="max-w-xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
-      {/* Favorite Button with conditional color change */}
-      <div className="flex items-center justify-center relative flex-col">
+    <div className="max-w-3xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
+      {/* Favorite & Share Buttons */}
+      <div className="absolute top-2 right-2 flex flex-col items-end">
+        {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
-          className={`absolute top-4 right-4 focus:outline-none rounded-full p-3 border-2 ${
+          className={`focus:outline-none rounded-full p-2 border-2 ${
             favorites.some((fav) => fav._id === _id)
               ? "border-red-600"
               : "border-gray-600"
           }`}
         >
           {favorites.some((fav) => fav._id === _id) ? (
-            <FaHeart size={30} className="text-red-600" />
+            <FaHeart size={24} className="text-red-600" />
           ) : (
-            <CiHeart size={30} className="text-gray-500" />
+            <CiHeart size={24} className="text-gray-500" />
           )}
         </button>
+
+        {/* Share Button */}
         <button
-          className="absolute top-4 right-20 focus:outline-none rounded-full p-3 border-2 border-gray-600"
+          className="focus:outline-none rounded-full p-2 border-2 border-gray-600 mt-1"
           onClick={handleShareClick}
         >
-          <FaShare size={30} className="text-gray-500" />
+          <FaShare size={24} className="text-gray-500" />
         </button>
       </div>
 
@@ -178,7 +181,7 @@ const RecipeCard = ({
             onClick={handleViewDetails}
             className="px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           >
-            See Full Recipe
+            See More
           </button>
           <button
             onClick={handleDelete}

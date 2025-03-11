@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { UserDeleteUrl } from "../../API";
+import { LogoutUrl, UserDeleteUrl } from "../../API";
 
 const SettingScreen = ({ user, setUser, loading }) => {
   const navigate = useNavigate();
@@ -48,14 +48,14 @@ const SettingScreen = ({ user, setUser, loading }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch(
-        "https://recipe-creator-4zf3.vercel.app/logout",
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-      if (response.ok) {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post(LogoutUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+      if (response.status === 200) {
         setUser([]);
         localStorage.removeItem("authToken");
         navigate("/login");
@@ -64,7 +64,7 @@ const SettingScreen = ({ user, setUser, loading }) => {
         toast.error("Error logging out");
       }
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error("Error during logout:", error.message);
       toast.error("Error logging out. Please try again.");
     }
   };
@@ -79,7 +79,7 @@ const SettingScreen = ({ user, setUser, loading }) => {
   }
 
   return (
-    <div className="flex justify-center items-center p-6">
+    <div className="flex justify-center items-center py-4">
       <div className="bg-white rounded-lg shadow-md w-full max-w-4xl p-6">
         {/* Profile Section */}
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">Profile</h1>
@@ -91,14 +91,14 @@ const SettingScreen = ({ user, setUser, loading }) => {
         </div>
 
         {/* Stats Section */}
-        <div className="flex gap-4 mt-6">
-          <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm">
+        <div className="lg:flex gap-4 p mt-6">
+          <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm mb-2">
             <h3 className="text-lg font-medium text-gray-700">Total Recipes</h3>
             <p className="text-2xl font-bold text-gray-800">
               {user.recipes ? user.recipes.length : 0}
             </p>
           </div>
-          <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm">
+          <div className="flex-1 bg-gray-100 p-4 rounded-md text-center shadow-sm mb-2">
             <h3 className="text-lg font-medium text-gray-700">Favorites</h3>
             <p className="text-2xl font-bold text-gray-800">
               {user.favorites ? user.favorites.length : 0}

@@ -80,7 +80,7 @@ function AppDrawer() {
           position: "fixed",
           width: "100%",
           zIndex: 1300,
-          bgcolor: "background.default",
+          bgcolor: "#f8f8ff",
           justifyContent: "space-between",
           alignItems: "center",
           px: 2,
@@ -113,6 +113,7 @@ function AppDrawer() {
         sx={{
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": { width: drawerWidth },
+          bgColor: "#f8f8ff",
         }}
       >
         {drawerContent}
@@ -125,6 +126,7 @@ function AppDrawer() {
           "& .MuiDrawer-paper": {
             width: drawerWidth,
             boxSizing: "border-box",
+            bgcolor: "#f8f8ff",
           },
         }}
       >

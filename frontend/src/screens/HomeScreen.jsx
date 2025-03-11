@@ -64,7 +64,7 @@ const HomeScreen = ({
       animate={{ y: 50, opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[90rem] mx-auto">
         <h1 className="text-3xl font-bold mb-4">Welcome back, Chef!</h1>
         <p className="text-lg mb-8">Let's create something delicious today</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -97,7 +97,7 @@ const HomeScreen = ({
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-t-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Recent Activity</h2>
           <ul className="py-2">
             <li className="flex items-center space-x-3 mt-3">
@@ -144,14 +144,14 @@ const HomeScreen = ({
             </li>
           </ul>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-b-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
           {loading ? (
             <p>Loading...</p>
           ) : recipes.length === 0 ? (
             <p>No recipes available.</p>
           ) : (
-            <div className="grid md:grid-cols-1 lg:grid-cols-2 grid-cols-1 gap-4">
+            <div className="grid md:grid-cols-1 lg:grid-cols-2 grid-cols-1 lg:px-20 lg:py-5 gap-2">
               {recipes.map((allRecipes) => (
                 <RecipeCard
                   key={allRecipes._id}

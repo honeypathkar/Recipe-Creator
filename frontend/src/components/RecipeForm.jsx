@@ -81,12 +81,12 @@ const RecipeForm = ({
   };
 
   return (
-    <div className="flex flex-col items-center px-4 py-8 space-y-12">
+    <div className="flex flex-col items-center py-8">
       {/* Recipe Form */}
       <div className="bg-white rounded-lg border-[1px] border-gray-300 shadow-lg p-8 w-full max-w-3xl">
         <h2 className="text-3xl font-bold text-center mb-8">Recipe Form</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex gap-4 items-end">
+          <div className="flex gap-4 items-end flex-wrap">
             <div className="flex-1">
               <label
                 htmlFor="ingredients"
@@ -110,7 +110,7 @@ const RecipeForm = ({
               className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:scale-105 transform transition duration-300 cursor-pointer disabled:bg-gray-400"
               disabled={loading || !ingredient.trim()} // Disable when loading or input is empty
             >
-              <AddCircleOutline /> Add Ingredient
+              <AddCircleOutline />
             </button>
           </div>
 
