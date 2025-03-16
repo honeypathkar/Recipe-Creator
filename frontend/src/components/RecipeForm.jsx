@@ -4,6 +4,7 @@ import RecipeCard from "./RecipeCard";
 import NoRecipeImage from "../images/no-favorite.png";
 import axios from "axios";
 import { AddCircleOutline, CloseSharp } from "@mui/icons-material";
+import { RecipeCreateUrl } from "../../API";
 
 const RecipeForm = ({
   fetchUserData,
@@ -52,7 +53,7 @@ const RecipeForm = ({
     setLoading(true); // Start loading
     try {
       const response = await axios.post(
-        "https://recipe-creator-4zf3.vercel.app/generate-recipe",
+        `${RecipeCreateUrl}`,
         formData, // Send data directly
         {
           headers: {

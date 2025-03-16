@@ -49,12 +49,7 @@ const SettingScreen = ({ user, setUser, loading }) => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await axios.post(LogoutUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
+      const response = await axios.post(LogoutUrl);
       if (response.status === 200) {
         setUser([]);
         localStorage.removeItem("authToken");
