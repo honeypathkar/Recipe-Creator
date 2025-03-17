@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { LogoutUrl, UserDeleteUrl } from "../../API";
+import { UserDeleteUrl } from "../../API";
 
 const SettingScreen = ({ user, setUser, loading }) => {
   const navigate = useNavigate();
@@ -47,21 +47,10 @@ const SettingScreen = ({ user, setUser, loading }) => {
   };
 
   const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.post(LogoutUrl);
-      if (response.status === 200) {
-        setUser([]);
-        localStorage.removeItem("authToken");
-        navigate("/login");
-        toast.success("Logout Successful");
-      } else {
-        toast.error("Error logging out");
-      }
-    } catch (error) {
-      console.error("Error during logout:", error.message);
-      toast.error("Error logging out. Please try again.");
-    }
+    setUser([]);
+    localStorage.removeItem("authToken");
+    navigate("/login");
+    toast.success("Logout Successful");
   };
 
   if (loading) {

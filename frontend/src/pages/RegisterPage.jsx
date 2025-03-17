@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion"; // Import framer-motion
 import RegisterImage from "../images/register-image.png";
 import axios from "axios";
+import { RegisterUrl } from "../../API";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,7 +28,7 @@ function RegisterPage() {
 
     try {
       const response = await axios.post(
-        "https://recipe-creator-4zf3.vercel.app/userRegister",
+        RegisterUrl,
         formData, // Send form data directly
         {
           headers: {
