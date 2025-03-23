@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import LoginImage from "../images/login-image.png";
 import { LoginUrl } from "../../API";
 import axios from "axios";
+import OtpPopup from "./OtpVerification";
 
 function LoginPage({ setUser }) {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ function LoginPage({ setUser }) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [email, setEmail] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,25 +29,27 @@ function LoginPage({ setUser }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        LoginUrl, // Using API constant
-        formData,
-        { withCredentials: true } // Enables sending cookies
-      );
+      const response = await axios.post(LoginUrl, formData, {
+        withCredentials: true,
+      });
 
-      const { token, user } = response.data;
+      const { otpRequired, token } = response.data;
       console.log(response.data);
 
-      // Store token in localStorage
-      localStorage.setItem("authToken", token);
+      if (otpRequired) {
+        // If OTP verification is needed, show the popup
+        setEmail(formData.email);
+        setShowOtpPopup(true);
+      } else {
+        // If no OTP is required, proceed to home
+        localStorage.setItem("authToken", token);
+        toast.success("Login Successful");
+        navigate("/home", { replace: true });
 
-      setUser(user);
-      toast.success("Login Successful");
-      navigate("/home", { replace: true });
-
-      // Prevent back navigation and reload
-      window.history.pushState(null, document.title, location.href);
-      window.location.reload();
+        // Prevent back navigation and reload
+        window.history.pushState(null, document.title, location.href);
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast.error(error.response?.data?.error || "Login Failed");
@@ -165,6 +170,9 @@ function LoginPage({ setUser }) {
           </div>
         </motion.form>
       </motion.div>
+      {showOtpPopup && (
+        <OtpPopup email={email} onClose={() => setShowOtpPopup(false)} />
+      )}
     </div>
   );
 }

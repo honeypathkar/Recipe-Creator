@@ -27,6 +27,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Connect Database
+console.log(process.env.EMAIL_USER);
 connectDB();
 
 // Routes

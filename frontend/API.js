@@ -1,5 +1,6 @@
 const BASE_API = import.meta.env.VITE_REACT_APP_BASE_API_URL;
 export const LoginUrl = `${BASE_API}/users/login`;
+export const VerifyOtp = `${BASE_API}/users/verify-otp`;
 export const RegisterUrl = `${BASE_API}/users/register`;
 export const RecipeCreateUrl = `${BASE_API}/recipes/generate`;
 export const RecipeDeleteUrl = `${BASE_API}/recipes/delete`;

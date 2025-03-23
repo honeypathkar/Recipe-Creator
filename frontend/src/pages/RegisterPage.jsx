@@ -28,7 +28,7 @@ function RegisterPage() {
 
     try {
       const response = await axios.post(
-        RegisterUrl,
+        "http://localhost:5001/auth/v1/users/register",
         formData, // Send form data directly
         {
           headers: {

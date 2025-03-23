@@ -17,6 +17,16 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
     },
+    isVerified: {
+      type: Boolean,
+      default: false, // ✅ Tracks if the user has verified their email via OTP
+    },
+    otp: {
+      type: String, // ✅ Stores OTP sent to the user's email
+    },
+    otpExpiry: {
+      type: Date, // ✅ Expiry time for OTP (e.g., 10 minutes validity)
+    },
     recipes: [
       {
         type: mongoose.Schema.Types.ObjectId,
