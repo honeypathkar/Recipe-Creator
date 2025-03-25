@@ -39,7 +39,6 @@ const RecipeCard = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Include token in headers
           },
-          withCredentials: true, // Include credentials if needed
         }
       );
 
@@ -74,7 +73,7 @@ const RecipeCard = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true,
+        // withCredentials: true,
       });
 
       if (response.status === 200) {

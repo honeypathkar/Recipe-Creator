@@ -19,23 +19,24 @@ function App() {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("authToken");
+  console.log(token);
 
   //Logged in user created recipes
   const fetchUserRecipes = async () => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.get(GetUserRecipesUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true,
+        // withCredentials: true,
       });
 
       if (!response.status) {
         throw new Error("Failed to fetch user recipes");
       }
 
-      setRecipes(response.data);
+      setRecipes(response?.data);
     } catch (error) {
       console.error("Error fetching user recipes:", error.message);
     }
@@ -45,7 +46,6 @@ function App() {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.get(UserProfileUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -54,7 +54,7 @@ function App() {
       if (!response.status) {
         throw new Error(`Failed to fetch: ${response.statusText}`);
       }
-      setUser(response.data);
+      setUser(response?.data);
     } catch (error) {
       console.error("Error fetching user data:", error.message);
     } finally {
@@ -65,18 +65,17 @@ function App() {
   //Logged in user favorite recipes
   const fetchUserFavRecipes = async () => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.get(GetFavUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true,
+        // withCredentials: true,
       });
 
       if (!response.status) {
         throw new Error("Failed to fetch user recipes");
       }
-      setFavorites(response.data);
+      setFavorites(response?.data);
     } catch (error) {
       console.error("Error fetching user recipes:", error.message);
     }

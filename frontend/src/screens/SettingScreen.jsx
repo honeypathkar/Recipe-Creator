@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { UserDeleteUrl } from "../../API";
+import { LogoutUrl, UserDeleteUrl } from "../../API";
 
 const SettingScreen = ({ user, setUser, loading }) => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const SettingScreen = ({ user, setUser, loading }) => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`, // Send token for authentication
             },
-            withCredentials: true,
+            // withCredentials: true,
           });
 
           if (response.status === 200) {
@@ -47,10 +47,27 @@ const SettingScreen = ({ user, setUser, loading }) => {
   };
 
   const handleLogout = async () => {
-    setUser([]);
-    localStorage.removeItem("authToken");
-    navigate("/login");
-    toast.success("Logout Successful");
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post(
+        LogoutUrl,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setUser([]);
+        localStorage.removeItem("authToken");
+        navigate("/login");
+        toast.success("Logout Successful");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error(error.response?.data?.error || "Failed");
+    }
   };
 
   if (loading) {

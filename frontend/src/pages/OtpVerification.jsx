@@ -22,6 +22,7 @@ const OtpPopup = ({ email, onClose }) => {
 
       onClose(); // Close popup
       navigate("/home", { replace: true });
+      window.location.reload();
     } catch (error) {
       toast.error(error.response?.data?.error || "Invalid OTP");
     } finally {

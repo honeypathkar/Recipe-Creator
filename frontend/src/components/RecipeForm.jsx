@@ -60,7 +60,6 @@ const RecipeForm = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Include token in headers
           },
-          withCredentials: true, // Ensure cookies are sent
         }
       );
 
