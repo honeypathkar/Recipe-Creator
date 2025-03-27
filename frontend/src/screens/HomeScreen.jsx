@@ -40,12 +40,13 @@ const HomeScreen = ({
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch(GetAllRecipe, {
-          method: "GET",
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(GetAllRecipe, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        const data = await response.json();
-        setAllRecipes(data);
-        console.log(data);
+        setAllRecipes(response.data);
       } catch (error) {
         console.error("Error fetching recipes:", error);
       } finally {

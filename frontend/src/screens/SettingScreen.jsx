@@ -86,7 +86,18 @@ const SettingScreen = ({ user, setUser, loading }) => {
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">Profile</h1>
         <div className="flex items-center">
           <div className="ml-4">
-            <h2 className="text-xl font-bold text-gray-800">{user.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800">
+              {user.name}{" "}
+              {user.isVerified ? (
+                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-center text-sm font-light">
+                  Verfied
+                </span>
+              ) : (
+                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-center text-sm font-light">
+                  Not Verfied
+                </span>
+              )}{" "}
+            </h2>
             <p className="text-gray-600">{user.email}</p>
           </div>
         </div>

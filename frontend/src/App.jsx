@@ -20,7 +20,7 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("authToken");
-  console.log(token);
+  // console.log(token);
 
   //Logged in user created recipes
   const fetchUserRecipes = async () => {

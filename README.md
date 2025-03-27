@@ -66,6 +66,8 @@ git clone https://github.com/honeypathkar/Recipe-Creator.git
   GEMINI_API_KEY=your-api-key
   JWT_SECRET=your-key
   CLIENT_URL=your-client-url
+  EMAIL_USER=your-email
+  APP_PASS=your-app-pass-for-email
   ```
 - Start the backend server:
   ```bash
