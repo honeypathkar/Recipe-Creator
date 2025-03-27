@@ -54,7 +54,7 @@ router.delete("/delete", verifyToken, async (req, res) => {
 });
 
 // Get All Recipes
-router.get("/all", async (req, res) => {
+router.get("/all", verifyToken, async (req, res) => {
   try {
     const recipes = await Recipe.find();
     res.status(200).json(recipes);

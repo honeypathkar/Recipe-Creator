@@ -38,10 +38,10 @@ function RegisterPage() {
         }
       );
 
-      if (response.status === 200) {
-        navigate("/login");
-        toast.success("Registered Successfully");
-      }
+      // if (response.status === 200) {
+      navigate("/login");
+      toast.success("Registered Successfully");
+      // }
     } catch (err) {
       if (err.response) {
         // Handle specific HTTP errors

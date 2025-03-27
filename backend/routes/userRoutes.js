@@ -152,7 +152,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 });
 
 // Get All Users
-router.get("/all", async (req, res) => {
+router.get("/all", verifyToken, async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json(users);
