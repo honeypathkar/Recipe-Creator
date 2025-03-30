@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns"; // Import the required function
 import { motion } from "framer-motion";
 import RecipeCard from "../components/RecipeCard";
 import { GetAllRecipe } from "../../API";
+import axios from "axios";
 // import { getUserData } from "../hooks/profile";
 
 const HomeScreen = ({
@@ -146,14 +147,14 @@ const HomeScreen = ({
           </ul>
         </div>
         <div className="bg-white p-6 rounded-b-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
+          <h2 className="text-2xl font-semibold mb-4">All Recipes</h2>
           {loading ? (
             <p>Loading...</p>
           ) : recipes.length === 0 ? (
             <p>No recipes available.</p>
           ) : (
             <div className="grid md:grid-cols-1 lg:grid-cols-2 grid-cols-1 lg:px-20 lg:py-5 gap-2">
-              {recipes.map((allRecipes) => (
+              {allRecipes.map((allRecipes) => (
                 <RecipeCard
                   key={allRecipes._id}
                   recipe={allRecipes}

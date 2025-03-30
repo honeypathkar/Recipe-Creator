@@ -1,54 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
-import { FaRegTrashAlt, FaHeart } from "react-icons/fa";
+import { FaRegTrashAlt, FaHeart, FaShare } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { FaShare } from "react-icons/fa";
-import { AddToFavUrl, RecipeDeleteUrl, RemoveFavUrl } from "../../API";
+import {
+  AddToFavUrl,
+  RecipeDeleteUrl,
+  RemoveFavUrl,
+  UserProfileUrl,
+} from "../../API";
 import axios from "axios";
 
 const RecipeCard = ({
   recipe,
   fetchUserRecipes,
-  fetchUserData,
   fetchUserFavRecipes,
   favorites,
 }) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   if (!recipe) return null;
 
   const { title, cuisine, ingredients, _id } = recipe;
 
   const handleViewDetails = () => {
-    navigate(`/recipe/${_id}`, { state: { recipe } });
+    navigate(`/recipe/${_id}`); // Now only passing the ID
   };
 
-  // Function to handle favorite button click
   const handleFavoriteClick = async () => {
     const isFavorite = favorites.some((fav) => fav._id === _id);
-    const url = isFavorite ? RemoveFavUrl : AddToFavUrl; // Determine API route
-    const token = localStorage.getItem("authToken"); // Retrieve token
+    const url = isFavorite ? RemoveFavUrl : AddToFavUrl;
+    const token = localStorage.getItem("authToken");
 
     try {
       const response = await axios.post(
         url,
-        { recipeId: _id }, // Send data properly
+        { recipeId: _id },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Include token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.status === 200) {
-        const message = isFavorite
-          ? "Recipe removed from favorites!"
-          : "Recipe added to favorites!";
-        toast.success(message);
-        fetchUserFavRecipes(); // Refresh user favorite recipes
-        fetchUserData(); // Refresh user data
+        toast.success(
+          isFavorite
+            ? "Recipe removed from favorites!"
+            : "Recipe added to favorites!"
+        );
+        fetchUserFavRecipes();
       } else {
         throw new Error("Failed to update favorite status");
       }
@@ -58,29 +61,26 @@ const RecipeCard = ({
     }
   };
 
-  // Function to handle delete button click
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("authToken"); // Check the correct key
+      const token = localStorage.getItem("authToken");
       if (!token) {
         toast.error("Authentication token is missing!");
         return;
       }
 
       const response = await axios.delete(RecipeDeleteUrl, {
-        data: { recipeId: _id }, // Correct way to send data in DELETE request
+        data: { recipeId: _id },
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        // withCredentials: true,
       });
 
       if (response.status === 200) {
         toast.success("Recipe deleted!");
         fetchUserRecipes();
         fetchUserFavRecipes();
-        fetchUserData();
       } else {
         throw new Error("Failed to delete recipe");
       }
@@ -90,45 +90,50 @@ const RecipeCard = ({
     }
   };
 
-  // Function to handle sharing the recipe
-  const handleShareClick = () => {
+  const handleShareClick = async () => {
     const recipeUrl = `${window.location.origin}/recipe/${_id}`;
-    const shareData = {
-      title: `Check out this recipe: ${title}`,
-      text: `Here's an amazing recipe for ${title}!`,
-      url: recipeUrl,
-    };
 
     if (navigator.share) {
-      // Use the Web Share API
-      navigator
-        .share(shareData)
-        .then(() => {
-          toast.success("Recipe shared successfully!");
-        })
-        .catch((error) => {
-          console.error("Error sharing the recipe:", error);
-          toast.error("Failed to share the recipe.");
+      try {
+        await navigator.share({
+          title,
+          text: `Check out this recipe: ${title}`,
+          url: recipeUrl,
         });
+        toast.success("Recipe shared successfully!");
+      } catch (error) {
+        console.error("Error sharing the recipe:", error);
+        toast.error("Failed to share the recipe.");
+      }
     } else {
-      // Fallback: Copy the link to the clipboard
-      navigator.clipboard
-        .writeText(recipeUrl)
-        .then(() => {
-          toast.success("Recipe link copied to clipboard!");
-        })
-        .catch((error) => {
-          console.error("Error copying the recipe link:", error);
-          toast.error("Failed to copy the recipe link.");
-        });
+      try {
+        await navigator.clipboard.writeText(recipeUrl);
+        toast.success("Recipe link copied to clipboard!");
+      } catch (error) {
+        console.error("Error copying the recipe link:", error);
+        toast.error("Failed to copy the recipe link.");
+      }
     }
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(UserProfileUrl, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(response?.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error.message);
+      }
+    };
+    fetchUserData();
+  }, []);
+
   return (
     <div className="max-w-3xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
-      {/* Favorite & Share Buttons */}
       <div className="absolute top-2 right-2 flex flex-col items-end">
-        {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
           className={`focus:outline-none rounded-full p-2 border-2 ${
@@ -143,8 +148,6 @@ const RecipeCard = ({
             <CiHeart size={24} className="text-gray-500" />
           )}
         </button>
-
-        {/* Share Button */}
         <button
           className="focus:outline-none rounded-full p-2 border-2 border-gray-600 mt-1"
           onClick={handleShareClick}
@@ -153,14 +156,11 @@ const RecipeCard = ({
         </button>
       </div>
 
-      {/* Recipe Details */}
       <div className="p-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-2 pr-[40px]">
           {title}
         </h2>
         <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
-
-        {/* Ingredients */}
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
           Ingredients
         </h3>
@@ -174,7 +174,6 @@ const RecipeCard = ({
             <li className="text-gray-500 italic">...and more</li>
           )}
         </ul>
-
         <div className="flex gap-4 items-center">
           <button
             onClick={handleViewDetails}
@@ -182,13 +181,14 @@ const RecipeCard = ({
           >
             See More
           </button>
-          <button
-            onClick={handleDelete}
-            className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
-          >
-            <FaRegTrashAlt />
-            Delete
-          </button>
+          {user?.recipes?.includes(recipe._id) && (
+            <button
+              onClick={handleDelete}
+              className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
+            >
+              <FaRegTrashAlt /> Delete
+            </button>
+          )}
         </div>
       </div>
     </div>

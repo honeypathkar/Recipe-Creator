@@ -1,13 +1,41 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { GetRecipeByID } from "../../API";
 
 const DetailScreen = () => {
-  const { state } = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const recipe = state?.recipe;
+  const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchRecipeDetails = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${GetRecipeByID}/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          // withCredentials: true,
+        });
+        setRecipe(response.data);
+      } catch (error) {
+        console.error("Error fetching recipe details:", error);
+        toast.error("Failed to fetch recipe details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipeDetails();
+  }, [id]);
+
+  if (loading) return <p>Loading recipe details...</p>;
   if (!recipe) return <p>No recipe details found.</p>;
 
   const { title, cuisine, ingredients, instructions } = recipe;
