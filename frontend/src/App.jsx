@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import AppDrawer from "./components/AppDrawer";
 import FavouriteScreen from "./screens/FavouriteScreen";
 import Home from "./screens/HomeScreen";
@@ -20,6 +25,7 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("authToken");
+  const navigate = useNavigate();
   // console.log(token);
 
   //Logged in user created recipes
@@ -86,6 +92,10 @@ function App() {
     fetchUserRecipes();
     fetchUserFavRecipes();
   }, []);
+
+  // if (!token) {
+  //   navigate("/login");
+  // }
 
   return (
     <Router>

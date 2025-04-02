@@ -89,10 +89,56 @@ router.post("/login", async (req, res) => {
       });
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `Recipe Creator AI <${process.env.EMAIL_USER}>`,
         to: user.email,
-        subject: "Your OTP Code",
-        text: `Your OTP code is ${otp}. It will expire in 10 minutes.`,
+        subject: "Your One-Time Password (OTP)",
+        html: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 20px;
+                background-color: #f8f9fa;
+              }
+              .container {
+                max-width: 500px;
+                margin: auto;
+                background: #ffffff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+              }
+              h2 {
+                color: #333;
+              }
+              .otp {
+                font-size: 28px;
+                font-weight: bold;
+                color: #28a745; /* Green color */
+                margin: 10px 0;
+              }
+              .footer {
+                margin-top: 20px;
+                font-size: 12px;
+                color: #6c757d;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h2>Your OTP Code</h2>
+              <p>Your OTP for authentication of your Recipe Creator AI account is:</p>
+              <div class="otp">${otp}</div>
+              <p>This code expires in 10 minutes. Please use this OTP to securely log in.</p>
+              <div class="footer">
+                If you did not request this OTP, please ignore this email.
+              </div>
+            </div>
+          </body>
+        </html>
+        `,
       };
 
       await transporter.sendMail(mailOptions);
