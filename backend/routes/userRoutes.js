@@ -89,9 +89,9 @@ router.post("/login", async (req, res) => {
       });
 
       const mailOptions = {
-        from: `Recipe Creator AI <${process.env.EMAIL_USER}>`,
+        from: `"Recipe Creator Support" <${process.env.EMAIL_USER}>`,
         to: user.email,
-        subject: "Your One-Time Password (OTP)",
+        subject: "Your Recipe Creator login code",
         html: `
         <html>
           <head>
@@ -118,6 +118,10 @@ router.post("/login", async (req, res) => {
                 font-weight: bold;
                 color: #28a745; /* Green color */
                 margin: 10px 0;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
               }
               .footer {
                 margin-top: 20px;
@@ -129,7 +133,7 @@ router.post("/login", async (req, res) => {
           <body>
             <div class="container">
               <h2>Your OTP Code</h2>
-              <p>Your OTP for authentication of your Recipe Creator AI account is:</p>
+              <p>Your OTP for authentication of your Recipe Creator account is:</p>
               <div class="otp">${otp}</div>
               <p>This code expires in 10 minutes. Please use this OTP to securely log in.</p>
               <div class="footer">
@@ -139,6 +143,7 @@ router.post("/login", async (req, res) => {
           </body>
         </html>
         `,
+        text: `Your OTP for Recipe Creator is: ${otp}. This code expires in 10 minutes. Please use this OTP to securely log in. If you did not request this OTP, please ignore this email.`, // Add this
       };
 
       await transporter.sendMail(mailOptions);
