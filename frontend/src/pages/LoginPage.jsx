@@ -39,6 +39,7 @@ function LoginPage({ setUser }) {
       if (otpRequired) {
         // If OTP verification is needed, show the popup
         setEmail(formData.email);
+        toast.success("OTP sent to your email for verification.");
         setShowOtpPopup(true);
       } else {
         // If no OTP is required, proceed to home

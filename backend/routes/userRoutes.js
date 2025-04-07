@@ -89,9 +89,10 @@ router.post("/login", async (req, res) => {
       });
 
       const mailOptions = {
-        from: `"Recipe Creator Support" <${process.env.EMAIL_USER}>`,
+        from: `"Recipe Creator" <${process.env.EMAIL_USER}>`,
         to: user.email,
-        subject: "Your Recipe Creator login code",
+        subject: "Your OTP Code for Recipe Creator Login",
+        text: `Your OTP is ${otp}. This will expire in 10 minutes.`,
         html: `
         <html>
           <head>
@@ -143,7 +144,6 @@ router.post("/login", async (req, res) => {
           </body>
         </html>
         `,
-        text: `Your OTP for Recipe Creator is: ${otp}. This code expires in 10 minutes. Please use this OTP to securely log in. If you did not request this OTP, please ignore this email.`, // Add this
       };
 
       await transporter.sendMail(mailOptions);

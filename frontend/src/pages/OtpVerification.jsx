@@ -39,8 +39,9 @@ const OtpPopup = ({ email, onClose }) => {
         className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
       >
         <h2 className="text-xl font-bold text-center text-gray-800 mb-4">
-          Enter OTP
+          Enter OTP that was sent to your email
         </h2>
+        <p>Also check spam folder</p>
 
         <input
           type="text"
@@ -48,6 +49,7 @@ const OtpPopup = ({ email, onClose }) => {
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           required
+          maxLength={6}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-center text-lg"
         />
 

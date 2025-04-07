@@ -3,6 +3,7 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
+  Navigate,
   useNavigate,
 } from "react-router-dom";
 import AppDrawer from "./components/AppDrawer";
@@ -12,43 +13,41 @@ import RecipeScreen from "./screens/RecipeScreen";
 import SettingScreen from "./screens/SettingScreen";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import { Navigate } from "react-router-dom";
 import Alert from "./components/Alert";
 import DetailScreen from "./screens/DetailScreen";
 import "./App.css";
 import { GetFavUrl, GetUserRecipesUrl, UserProfileUrl } from "../API";
 import axios from "axios";
 
-function App() {
-  const [user, setUser] = useState([]);
+function AppWrapper() {
+  const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("authToken");
   const navigate = useNavigate();
-  // console.log(token);
+  const token = localStorage.getItem("authToken");
 
-  //Logged in user created recipes
+  // Redirect to login if no token
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
   const fetchUserRecipes = async () => {
     try {
       const response = await axios.get(GetUserRecipesUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        // withCredentials: true,
       });
-
-      if (!response.status) {
-        throw new Error("Failed to fetch user recipes");
-      }
-
+      if (!response.status) throw new Error("Failed to fetch user recipes");
       setRecipes(response?.data);
     } catch (error) {
       console.error("Error fetching user recipes:", error.message);
     }
   };
 
-  //Logged in user data
   const fetchUserData = async () => {
     setLoading(true);
     try {
@@ -57,9 +56,8 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.status) {
+      if (!response.status)
         throw new Error(`Failed to fetch: ${response.statusText}`);
-      }
       setUser(response?.data);
     } catch (error) {
       console.error("Error fetching user data:", error.message);
@@ -68,44 +66,36 @@ function App() {
     }
   };
 
-  //Logged in user favorite recipes
   const fetchUserFavRecipes = async () => {
     try {
       const response = await axios.get(GetFavUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        // withCredentials: true,
       });
-
-      if (!response.status) {
-        throw new Error("Failed to fetch user recipes");
-      }
+      if (!response.status) throw new Error("Failed to fetch favorites");
       setFavorites(response?.data);
     } catch (error) {
-      console.error("Error fetching user recipes:", error.message);
+      console.error("Error fetching favorites:", error.message);
     }
   };
 
   useEffect(() => {
-    fetchUserData();
-    fetchUserRecipes();
-    fetchUserFavRecipes();
-  }, []);
-
-  // if (!token) {
-  //   navigate("/login");
-  // }
+    if (token) {
+      fetchUserData();
+      fetchUserRecipes();
+      fetchUserFavRecipes();
+    }
+  }, [token]);
 
   return (
-    <Router>
+    <>
       <Alert />
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage setUser={setUser} />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Layout Route for AppDrawer */}
         <Route element={<AppDrawer />}>
           <Route
             path="/home"
@@ -158,6 +148,14 @@ function App() {
           <Route path="/recipe/:id" element={<DetailScreen />} />
         </Route>
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppWrapper />
     </Router>
   );
 }
