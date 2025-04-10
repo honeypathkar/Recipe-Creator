@@ -134,8 +134,10 @@ function RegisterPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#2418ff] text-white py-2 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200"
-            disabled={loading} // Disable the button when loading
+            className="w-full bg-[#2418ff] text-white py-2 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200 disabled:opacity-60"
+            disabled={
+              loading || !formData.email || !formData.password || !formData.name
+            } // Disable the button when loading
           >
             {loading ? (
               <div className="flex justify-center items-center space-x-2">
@@ -148,7 +150,10 @@ function RegisterPage() {
           </button>
           <div className="flex justify-center mt-5">
             Already have an account?&nbsp;
-            <Link to="/login" className="text-[#2418ff]">
+            <Link
+              to="/login"
+              className="text-[#2418ff] hover:underline font-medium"
+            >
               Login
             </Link>
           </div>

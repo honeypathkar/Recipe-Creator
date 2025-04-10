@@ -1,14 +1,9 @@
-import React from "react"; // Removed useEffect, useState
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
-import { FaRegTrashAlt, FaHeart, FaShare } from "react-icons/fa";
+import { FaRegTrashAlt, FaHeart, FaShare, FaArrowRight } from "react-icons/fa"; // Ensure FaArrowRight is imported
 import { toast } from "react-toastify";
-import {
-  AddToFavUrl,
-  RecipeDeleteUrl,
-  RemoveFavUrl,
-  // UserProfileUrl, // No longer needed here
-} from "../../API";
+import { AddToFavUrl, RecipeDeleteUrl, RemoveFavUrl } from "../../API";
 import axios from "axios";
 
 const RecipeCard = ({
@@ -16,25 +11,50 @@ const RecipeCard = ({
   fetchUserRecipes,
   fetchUserFavRecipes,
   favorites,
-  user, // <-- Accept user as a prop
+  user, // User object passed as prop
   fetchUserData,
 }) => {
   const navigate = useNavigate();
-  // Removed: const [user, setUser] = useState(null);
-  // Removed: useEffect fetching user data
 
-  if (!recipe) return null;
+  // Early return if recipe data is missing
+  if (!recipe) {
+    console.warn("RecipeCard rendered without a recipe object.");
+    return null;
+  }
 
-  const { title, cuisine, ingredients, _id } = recipe;
+  // Destructure with default values for safety, though early return helps
+  const {
+    title = "Untitled Recipe",
+    cuisine = "Unknown",
+    ingredients = [],
+    _id,
+    createdBy,
+  } = recipe; // Added createdBy
+
+  const isFavorite = favorites?.some((fav) => fav?._id === _id); // Added optional chaining
+
+  // --- Event Handlers ---
 
   const handleViewDetails = () => {
     navigate(`/recipe/${_id}`);
   };
 
   const handleFavoriteClick = async () => {
-    const isFavorite = favorites.some((fav) => fav._id === _id);
+    // Determine URL and success message based on current favorite status
     const url = isFavorite ? RemoveFavUrl : AddToFavUrl;
+    const successMessage = isFavorite
+      ? "Recipe removed from favorites!"
+      : "Recipe added to favorites!";
     const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      toast.error("You must be logged in to manage favorites.");
+      return;
+    }
+    if (!_id) {
+      toast.error("Cannot favorite recipe: Missing recipe ID.");
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -48,36 +68,40 @@ const RecipeCard = ({
         }
       );
 
-      if (response.status === 200) {
-        toast.success(
-          isFavorite
-            ? "Recipe removed from favorites!"
-            : "Recipe added to favorites!"
-        );
-        fetchUserFavRecipes(); // Refresh favorites list in parent
-        fetchUserData();
-      } else {
-        throw new Error("Failed to update favorite status");
-      }
+      // Check for explicit success status codes (e.g., 200 OK, 201 Created)
+      toast.success(successMessage);
+      // Refresh relevant data in the parent component
+      fetchUserFavRecipes();
+      fetchUserData();
+      fetchUserRecipes();
     } catch (error) {
       console.error("Error updating favorites:", error);
-      toast.error("Failed to update favorite status");
+      toast.error(
+        `Failed to update favorites. ${error?.response?.data?.message || ""}` // Show backend message if available
+      );
     }
   };
 
   const handleDelete = async () => {
-    // Confirmation dialog before deleting is recommended!
-    // if (!window.confirm("Are you sure you want to delete this recipe?")) {
-    //   return;
-    // }
+    if (
+      !window.confirm(`Are you sure you want to delete the recipe "${title}"?`)
+    ) {
+      return; // Stop if user cancels
+    }
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast.error("Authentication token is missing. Cannot delete.");
+      return;
+    }
+    if (!_id) {
+      toast.error("Cannot delete recipe: Missing recipe ID.");
+      return;
+    }
 
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        toast.error("Authentication token is missing!");
-        return;
-      }
-
+      // Note: Sending data in the body for DELETE is non-standard but possible with Axios.
+      // Ensure your backend API route for RecipeDeleteUrl expects 'recipeId' in the request body.
       const response = await axios.delete(RecipeDeleteUrl, {
         data: { recipeId: _id },
         headers: {
@@ -87,128 +111,153 @@ const RecipeCard = ({
       });
 
       if (response.status === 200) {
-        toast.success("Recipe deleted!");
-        fetchUserRecipes(); // Refresh recipes list in parent
-        fetchUserFavRecipes(); // Also refresh favorites if it was a favorite
-        fetchUserData(); // Refresh user data if needed
+        toast.success("Recipe deleted successfully!");
+        // Refresh relevant data in the parent component
+        fetchUserRecipes();
+        fetchUserFavRecipes(); // Refresh favorites in case it was favorited
+        // fetchUserData(); // Refresh user data if needed
       } else {
-        throw new Error("Failed to delete recipe");
+        throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error deleting recipe:", error.message);
-      toast.error("Failed to delete recipe");
+      console.error("Error deleting recipe:", error);
+      toast.error(
+        `Failed to delete recipe. ${error?.response?.data?.message || ""}` // Show backend message if available
+      );
     }
   };
 
   const handleShareClick = async () => {
+    if (!_id) {
+      toast.error("Cannot share recipe: Missing recipe ID.");
+      return;
+    }
     const recipeUrl = `${window.location.origin}/recipe/${_id}`;
 
     if (navigator.share) {
+      // Use Web Share API if available
       try {
         await navigator.share({
-          title,
+          title: title,
           text: `Check out this recipe: ${title}`,
           url: recipeUrl,
         });
-        toast.success("Recipe shared successfully!");
+        // Success toast might be redundant as the browser shows confirmation
+        // toast.success("Recipe shared!");
       } catch (error) {
-        console.error("Error sharing the recipe:", error);
-        // Don't show error if user simply cancelled the share dialog
+        console.error("Error sharing:", error);
+        // Ignore error if user cancelled the share action
         if (error.name !== "AbortError") {
-          toast.error("Failed to share the recipe.");
+          toast.error("Failed to share recipe.");
         }
       }
     } else {
-      // Fallback for browsers that don't support navigator.share
+      // Fallback: Copy to clipboard
       try {
         await navigator.clipboard.writeText(recipeUrl);
         toast.success("Recipe link copied to clipboard!");
       } catch (error) {
-        console.error("Error copying the recipe link:", error);
-        toast.error("Failed to copy the recipe link.");
+        console.error("Error copying to clipboard:", error);
+        toast.error("Failed to copy recipe link.");
       }
     }
   };
 
-  // Determine if the current user owns this recipe
-  // Option 1: Check if recipe author ID matches logged-in user ID (Recommended if available)
-  // const isOwner = user && recipe.authorId === user._id; // Assuming recipe has authorId and user has _id
-
-  // Option 2: Check if the recipe ID exists in the user's own recipes list (Using your original logic)
-  // Make sure the 'user' object fetched in AppWrapper includes the 'recipes' array with IDs.
-  const isOwner = user?.recipes?.includes(recipe._id);
+  const isOwner = user && createdBy && user._id === createdBy;
 
   return (
-    <div className="max-w-3xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
-      {/* Favorite and Share buttons */}
-      <div className="absolute top-2 right-2 flex flex-col items-end z-10">
-        {" "}
-        {/* Added z-10 */}
-        <button
-          onClick={handleFavoriteClick}
-          className={`focus:outline-none rounded-full p-2 border-2 bg-white bg-opacity-80 hover:bg-opacity-100 ${
-            // Added background for visibility
-            favorites.some((fav) => fav._id === _id)
-              ? "border-red-600"
-              : "border-gray-600"
-          }`}
-          aria-label={
-            favorites.some((fav) => fav._id === _id)
-              ? "Remove from favorites"
-              : "Add to favorites"
-          }
-        >
-          {favorites.some((fav) => fav._id === _id) ? (
-            <FaHeart size={24} className="text-red-600" />
-          ) : (
-            <CiHeart size={24} className="text-gray-500" />
-          )}
-        </button>
-        <button
-          className="focus:outline-none rounded-full p-2 border-2 border-gray-600 mt-1 bg-white bg-opacity-80 hover:bg-opacity-100" // Added background
-          onClick={handleShareClick}
-          aria-label="Share recipe"
-        >
-          <FaShare size={20} className="text-gray-500" />{" "}
-          {/* Adjusted size slightly */}
-        </button>
-      </div>
+    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full">
+      {/* Optional Image Area */}
+      {/* <div className="w-full h-40 bg-gray-200"><img ... /></div> */}
 
-      {/* Card Content */}
-      <div className="p-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2 pr-[40px]">
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-2">
+          <h2 className="text-xl font-semibold text-gray-800 mr-2 break-words">
+            {" "}
+            {/* Allow title wrapping */}
+            {title}
+          </h2>
+          <div className="flex space-x-2 flex-shrink-0">
+            <button
+              onClick={handleFavoriteClick}
+              className="text-gray-500 hover:text-red-500 focus:outline-none p-1 rounded-full hover:bg-gray-100"
+              aria-label={
+                isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"} // Added title attribute
+            >
+              {isFavorite ? (
+                <FaHeart size={18} className="text-red-500" />
+              ) : (
+                <CiHeart size={20} />
+              )}
+            </button>
+            <button
+              onClick={handleShareClick}
+              className="text-gray-500 hover:text-blue-500 focus:outline-none p-1 rounded-full hover:bg-gray-100"
+              aria-label="Share recipe"
+              title="Share recipe" // Added title attribute
+            >
+              <FaShare size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Cuisine */}
+        <p className="text-sm text-gray-500 mb-3">
+          {cuisine ? `Cuisine: ${cuisine}` : <>&nbsp;</>}{" "}
+          {/* Ensure space is occupied */}
+        </p>
+
+        {/* Ingredients Preview */}
+        <div className="mb-4 flex-grow min-h-[80px]">
           {" "}
-          {/* Added padding-right to avoid overlap */}
-          {title}
-        </h2>
-        <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
-        <h3 className="text-xl font-semibold text-gray-800 mb-2">
-          Ingredients
-        </h3>
-        <ul className="list-disc list-inside text-gray-700 space-y-1 mb-4">
-          {ingredients.slice(0, 2).map((item, index) => (
-            <li key={index}>
-              {item.item}: {item.quantity}
-            </li>
-          ))}
-          {ingredients.length > 2 && (
-            <li className="text-gray-500 italic">...and more</li>
+          {/* Ensure min height */}
+          <h3 className="text-md font-medium text-gray-700 mb-1">
+            Ingredients
+          </h3>
+          {ingredients && ingredients.length > 0 ? (
+            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+              {ingredients.slice(0, 3).map((item, index) => (
+                <li
+                  key={index}
+                  className="truncate"
+                  title={`${item.item} (${item.quantity})`}
+                >
+                  {" "}
+                  {/* Added title attribute */}
+                  {item.item} ({item.quantity})
+                </li>
+              ))}
+              {ingredients.length > 3 && (
+                <li className="text-gray-400 text-xs italic">...see more</li>
+              )}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-400 italic">
+              No ingredients listed.
+            </p>
           )}
-        </ul>
-        <div className="flex gap-4 items-center">
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
           <button
             onClick={handleViewDetails}
-            className="px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="inline-flex items-center px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             See More
+            <FaArrowRight className="ml-1.5 h-3 w-3" />
           </button>
-          {/* Use the 'isOwner' variable derived from the 'user' prop */}
+          {/* Conditionally render Delete button */}
           {isOwner && (
             <button
               onClick={handleDelete}
-              className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
+              className="flex items-center px-3 py-1.5 text-sm text-red-600 hover:text-white border border-red-500 hover:bg-red-600 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              title="Delete this recipe" // Added title attribute
             >
-              <FaRegTrashAlt className="mr-1" /> Delete {/* Added margin */}
+              <FaRegTrashAlt className="mr-1.5 h-3 w-3" /> Delete
             </button>
           )}
         </div>

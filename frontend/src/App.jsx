@@ -174,6 +174,9 @@ function AppWrapper() {
                 user={user} // Pass user data
                 recipes={recipes}
                 favorites={favorites}
+                fetchUserFavRecipes={fetchUserFavRecipes}
+                fetchUserRecipes={fetchUserRecipes}
+                fetchUserData={fetchUserData}
                 // Pass specific refresh functions if needed, e.g., refreshRecipes={fetchUserRecipes}
                 // Avoid passing fetchUserData if Home doesn't need to trigger a full profile refetch
               />
