@@ -5,9 +5,8 @@ import NoFavoriteImage from "../images/no-favorite.png";
 function FavouriteScreen({
   favorites,
   user,
-  fetchUserRecipes,
-  fetchUserData,
   fetchUserFavRecipes,
+  fetchUserData,
 }) {
   return (
     <div className="p-6">
@@ -31,7 +30,7 @@ function FavouriteScreen({
                 favorites={favorites}
                 user={user}
                 fetchUserData={fetchUserData}
-                fetchUserRecipes={fetchUserRecipes}
+                // fetchUserRecipes={fetchUserRecipes}
                 fetchUserFavRecipes={fetchUserFavRecipes}
               />
             ))}

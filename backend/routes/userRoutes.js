@@ -6,6 +6,7 @@ const verifyToken = require("../middleware/verifyToken");
 const crypto = require("crypto");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const sendOtp = require("../middleware/sendOtp");
 
 const router = express.Router();
 
@@ -72,81 +73,7 @@ router.post("/login", async (req, res) => {
       return res.status(200).json({ message: "Login successful", token });
     } else {
       // User is not verified, generate and send OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
-
-      user.otp = otp;
-      user.otpExpiry = otpExpiry;
-      await user.save();
-
-      // Send OTP via email
-      const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-          user: process.env.EMAIL_USER, // Use environment variables
-          pass: process.env.APP_PASS,
-        },
-      });
-
-      const mailOptions = {
-        from: `"Recipe Creator" <${process.env.EMAIL_USER}>`,
-        to: user.email,
-        subject: "Your OTP Code for Recipe Creator Login",
-        text: `Your OTP is ${otp}. This will expire in 10 minutes.`,
-        html: `
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                text-align: center;
-                padding: 20px;
-                background-color: #f8f9fa;
-              }
-              .container {
-                max-width: 500px;
-                margin: auto;
-                background: #ffffff;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-              }
-              h2 {
-                color: #333;
-              }
-              .otp {
-                font-size: 28px;
-                font-weight: bold;
-                color: #28a745; /* Green color */
-                margin: 10px 0;
-                text-align: center;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              }
-              .footer {
-                margin-top: 20px;
-                font-size: 12px;
-                color: #6c757d;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h2>Your OTP Code</h2>
-              <p>Your OTP for authentication of your Recipe Creator account is:</p>
-              <div class="otp">${otp}</div>
-              <p>This code expires in 10 minutes. Please use this OTP to securely log in.</p>
-              <div class="footer">
-                If you did not request this OTP, please ignore this email.
-              </div>
-            </div>
-          </body>
-        </html>
-        `,
-      };
-
-      await transporter.sendMail(mailOptions);
+      await sendOtp(user);
 
       return res.status(200).json({
         message: "OTP sent to email for verification.",
@@ -230,68 +157,111 @@ router.delete("/delete", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
-
-/* router.post("/verify-otp", async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user || user.otp !== otp || new Date() > user.otpExpiry) {
-      return res.status(400).json({ error: "Invalid or expired OTP" });
-    }
-
-    user.isVerified = true;
-    user.otp = null;
-    user.otpExpiry = null;
-    await user.save();
-
-    const token = jwt.sign({ email, userId: user._id }, process.env.JWT_SECRET);
-    res.status(200).json({ message: "OTP verified successfully!", token });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to verify OTP" });
-  }
-});
-
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email address is required." });
+    }
+
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const otp = generateOTP();
-    user.otp = otp;
-    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    await user.save();
-
-    await sendOtpEmail(email, otp);
-    res
-      .status(200)
-      .json({ message: "OTP sent to email. Please verify to reset password." });
+    // Check if user exists AND is verified
+    if (user && user.isVerified) {
+      try {
+        // User exists and is verified, send OTP
+        await sendOtp(user);
+        console.log(`Password reset OTP sent to verified user: ${email}`);
+        return res.status(200).json({
+          message: "OTP sent to your verified email address.",
+        });
+      } catch (otpError) {
+        console.error("Forgot Password - OTP Sending Error:", otpError);
+        // If OTP sending fails, send a generic server error
+        return res
+          .status(500)
+          .json({ error: "Failed to send OTP. Please try again later." });
+      }
+    } else if (user && !user.isVerified) {
+      // User exists but is not verified
+      console.log(`Password reset request for unverified email: ${email}`);
+      return res.status(403).json({
+        error:
+          "Account associated with this email is not verified. Please verify your account first.",
+      });
+    } else {
+      // User does not exist
+      console.log(`Password reset requested for non-existent email: ${email}`);
+      // Send a specific message indicating the issue
+      return res
+        .status(404)
+        .json({ error: "No verified account found with this email address." });
+    }
   } catch (error) {
-    res.status(500).json({ error: "Failed to send OTP" });
+    console.error("Forgot Password Route Error:", error);
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password-with-otp", async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
-    const user = await User.findOne({ email });
 
-    if (!user || user.otp !== otp || new Date() > user.otpExpiry) {
-      return res.status(400).json({ error: "Invalid or expired OTP" });
+    // Validate input
+    if (!email || !otp || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Email, OTP, and new password are required." });
+    }
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters long." });
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.otp = null;
-    user.otpExpiry = null;
+    const user = await User.findOne({ email });
+
+    // Check if user exists and is verified
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    if (!user.isVerified) {
+      return res.status(403).json({ error: "Account is not verified." });
+    }
+
+    // Check OTP validity and expiry
+    const now = new Date();
+    if (user.otp !== otp || !user.otpExpiry || user.otpExpiry <= now) {
+      // Clear invalid/expired OTP for security
+      user.otp = undefined;
+      user.otpExpiry = undefined;
+      await user.save();
+      return res.status(400).json({ error: "Invalid or expired OTP." });
+    }
+
+    // --- OTP is valid ---
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the password
+    user.password = hashedPassword;
+
+    // Clear the OTP fields as they have been successfully used
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+
+    // Save the updated user document
     await user.save();
 
-    res
-      .status(200)
-      .json({ message: "Password reset successful. You can now log in." });
+    console.log(`Password updated successfully via OTP for user: ${email}`);
+
+    return res.status(200).json({ message: "Password updated successfully." });
   } catch (error) {
-    res.status(500).json({ error: "Failed to reset password" });
+    console.error("Reset Password with OTP Route Error:", error);
+    res.status(500).json({ error: "Internal server error." });
   }
-}); */
+});
+
+module.exports = router;

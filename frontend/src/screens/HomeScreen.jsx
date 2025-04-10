@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import RecipeCard from "../components/RecipeCard";
 import { GetAllRecipe } from "../../API";
 import axios from "axios";
-// import { getUserData } from "../hooks/profile";
 
 const HomeScreen = ({
   recipes,

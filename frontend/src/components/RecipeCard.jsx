@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react"; // Removed useEffect, useState
 import { useNavigate } from "react-router-dom";
 import { CiHeart } from "react-icons/ci";
 import { FaRegTrashAlt, FaHeart, FaShare } from "react-icons/fa";
@@ -7,7 +7,7 @@ import {
   AddToFavUrl,
   RecipeDeleteUrl,
   RemoveFavUrl,
-  UserProfileUrl,
+  // UserProfileUrl, // No longer needed here
 } from "../../API";
 import axios from "axios";
 
@@ -16,16 +16,19 @@ const RecipeCard = ({
   fetchUserRecipes,
   fetchUserFavRecipes,
   favorites,
+  user, // <-- Accept user as a prop
+  fetchUserData,
 }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  // Removed: const [user, setUser] = useState(null);
+  // Removed: useEffect fetching user data
 
   if (!recipe) return null;
 
   const { title, cuisine, ingredients, _id } = recipe;
 
   const handleViewDetails = () => {
-    navigate(`/recipe/${_id}`); // Now only passing the ID
+    navigate(`/recipe/${_id}`);
   };
 
   const handleFavoriteClick = async () => {
@@ -51,7 +54,8 @@ const RecipeCard = ({
             ? "Recipe removed from favorites!"
             : "Recipe added to favorites!"
         );
-        fetchUserFavRecipes();
+        fetchUserFavRecipes(); // Refresh favorites list in parent
+        fetchUserData();
       } else {
         throw new Error("Failed to update favorite status");
       }
@@ -62,6 +66,11 @@ const RecipeCard = ({
   };
 
   const handleDelete = async () => {
+    // Confirmation dialog before deleting is recommended!
+    // if (!window.confirm("Are you sure you want to delete this recipe?")) {
+    //   return;
+    // }
+
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -79,8 +88,9 @@ const RecipeCard = ({
 
       if (response.status === 200) {
         toast.success("Recipe deleted!");
-        fetchUserRecipes();
-        fetchUserFavRecipes();
+        fetchUserRecipes(); // Refresh recipes list in parent
+        fetchUserFavRecipes(); // Also refresh favorites if it was a favorite
+        fetchUserData(); // Refresh user data if needed
       } else {
         throw new Error("Failed to delete recipe");
       }
@@ -103,9 +113,13 @@ const RecipeCard = ({
         toast.success("Recipe shared successfully!");
       } catch (error) {
         console.error("Error sharing the recipe:", error);
-        toast.error("Failed to share the recipe.");
+        // Don't show error if user simply cancelled the share dialog
+        if (error.name !== "AbortError") {
+          toast.error("Failed to share the recipe.");
+        }
       }
     } else {
+      // Fallback for browsers that don't support navigator.share
       try {
         await navigator.clipboard.writeText(recipeUrl);
         toast.success("Recipe link copied to clipboard!");
@@ -116,31 +130,33 @@ const RecipeCard = ({
     }
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await axios.get(UserProfileUrl, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response?.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-      }
-    };
-    fetchUserData();
-  }, []);
+  // Determine if the current user owns this recipe
+  // Option 1: Check if recipe author ID matches logged-in user ID (Recommended if available)
+  // const isOwner = user && recipe.authorId === user._id; // Assuming recipe has authorId and user has _id
+
+  // Option 2: Check if the recipe ID exists in the user's own recipes list (Using your original logic)
+  // Make sure the 'user' object fetched in AppWrapper includes the 'recipes' array with IDs.
+  const isOwner = user?.recipes?.includes(recipe._id);
 
   return (
     <div className="max-w-3xl relative bg-white rounded-lg border-[1px] border-black overflow-hidden">
-      <div className="absolute top-2 right-2 flex flex-col items-end">
+      {/* Favorite and Share buttons */}
+      <div className="absolute top-2 right-2 flex flex-col items-end z-10">
+        {" "}
+        {/* Added z-10 */}
         <button
           onClick={handleFavoriteClick}
-          className={`focus:outline-none rounded-full p-2 border-2 ${
+          className={`focus:outline-none rounded-full p-2 border-2 bg-white bg-opacity-80 hover:bg-opacity-100 ${
+            // Added background for visibility
             favorites.some((fav) => fav._id === _id)
               ? "border-red-600"
               : "border-gray-600"
           }`}
+          aria-label={
+            favorites.some((fav) => fav._id === _id)
+              ? "Remove from favorites"
+              : "Add to favorites"
+          }
         >
           {favorites.some((fav) => fav._id === _id) ? (
             <FaHeart size={24} className="text-red-600" />
@@ -149,15 +165,20 @@ const RecipeCard = ({
           )}
         </button>
         <button
-          className="focus:outline-none rounded-full p-2 border-2 border-gray-600 mt-1"
+          className="focus:outline-none rounded-full p-2 border-2 border-gray-600 mt-1 bg-white bg-opacity-80 hover:bg-opacity-100" // Added background
           onClick={handleShareClick}
+          aria-label="Share recipe"
         >
-          <FaShare size={24} className="text-gray-500" />
+          <FaShare size={20} className="text-gray-500" />{" "}
+          {/* Adjusted size slightly */}
         </button>
       </div>
 
+      {/* Card Content */}
       <div className="p-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-2 pr-[40px]">
+          {" "}
+          {/* Added padding-right to avoid overlap */}
           {title}
         </h2>
         <p className="text-gray-600 mb-4">Cuisine: {cuisine}</p>
@@ -181,12 +202,13 @@ const RecipeCard = ({
           >
             See More
           </button>
-          {user?.recipes?.includes(recipe._id) && (
+          {/* Use the 'isOwner' variable derived from the 'user' prop */}
+          {isOwner && (
             <button
               onClick={handleDelete}
               className="flex items-center px-3 py-1 text-white bg-red-500 rounded-md shadow-md hover:bg-red-600"
             >
-              <FaRegTrashAlt /> Delete
+              <FaRegTrashAlt className="mr-1" /> Delete {/* Added margin */}
             </button>
           )}
         </div>
