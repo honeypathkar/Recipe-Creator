@@ -13,3 +13,5 @@ export const RemoveFavUrl = `${BASE_API}/fav/removeFav`;
 export const GetFavUrl = `${BASE_API}/fav/userFav`;
 export const GetAllRecipe = `${BASE_API}/recipes/all`;
 export const LogoutUrl = `${BASE_API}/users/logout`;
+export const ForgotPasswordUrl = `${BASE_API}/users/forgot-password`;
+export const ResetPasswordWithOtpUrl = `${BASE_API}/users/reset-password-with-otp`;

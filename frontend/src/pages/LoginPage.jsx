@@ -2,23 +2,24 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
 import LoginImage from "../images/login-image.png";
-import { LoginUrl } from "../../API"; // Make sure API URLs are correctly imported
+import { LoginUrl } from "../../API";
 import axios from "axios";
-import OtpPopup from "./OtpVerification"; // Assuming you still use this based on the code
+import OtpPopup from "./OtpVerification";
+import ForgotPasswordPopup from "./ForgotPasswordPopup"; // <-- Import the new component
 
 function LoginPage({ setUser }) {
-  // Pass setUser if needed by your app logic
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [show, setShow] = useState(false); // State for password visibility
+  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [showOtpPopup, setShowOtpPopup] = useState(false); // State for OTP popup visibility
-  const [emailForOtp, setEmailForOtp] = useState(""); // State to pass email to OTP popup
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [emailForOtp, setEmailForOtp] = useState("");
+  const [showForgotPasswordPopup, setShowForgotPasswordPopup] = useState(false); // <-- State for Forgot Password popup
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,27 +32,23 @@ function LoginPage({ setUser }) {
 
     try {
       const response = await axios.post(LoginUrl, formData, {
-        withCredentials: true, // Keep this if your backend requires cookies
+        withCredentials: true,
       });
-
-      // Destructure response data carefully
       const { otpRequired, token, message } = response.data;
-      console.log(response.data);
 
       if (otpRequired) {
-        // If OTP verification is needed, show the popup
-        setEmailForOtp(formData.email); // Set the email to pass to the popup
-        toast.info(message || "OTP sent to your email for verification."); // Use info or success
-        setShowOtpPopup(true); // Show the OTP popup
+        setEmailForOtp(formData.email);
+        toast.info(message || "OTP sent to your email for verification.");
+        setShowOtpPopup(true);
       } else {
-        // If no OTP is required, proceed to home (Login successful)
         localStorage.setItem("authToken", token);
         toast.success(message || "Login Successful");
-        navigate("/home", { replace: true }); // Navigate using React Router
+        // Pass user data if available from login response, otherwise AppWrapper fetches it
+        // Example: if (response.data.user) setUser(response.data.user);
+        navigate("/home", { replace: true });
       }
     } catch (error) {
       console.error("Login error:", error);
-      // Display specific error from backend if available
       toast.error(
         error.response?.data?.error ||
           "Login Failed. Please check your credentials."
@@ -61,26 +58,32 @@ function LoginPage({ setUser }) {
     }
   };
 
-  // Effect to redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      // Optional: Add token validation here before navigating
-      console.log("User already logged in, navigating to home.");
       navigate("/home", { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+  }, []);
 
-  // Close OTP popup handler
   const handleCloseOtpPopup = () => {
     setShowOtpPopup(false);
-    setEmailForOtp(""); // Clear the email when popup closes
+    setEmailForOtp("");
   };
+
+  // --- Handlers for Forgot Password Popup ---
+  const handleOpenForgotPassword = () => {
+    setShowForgotPasswordPopup(true);
+  };
+
+  const handleCloseForgotPassword = () => {
+    setShowForgotPasswordPopup(false);
+  };
+  // --- End Handlers ---
 
   return (
     <div className="flex flex-wrap min-h-screen">
-      {/* Image Section */}
+      {/* Image Section (remains the same) */}
       <motion.div
         className="hidden lg:flex items-center justify-center bg-white w-full lg:w-1/2"
         initial={{ opacity: 0, x: -200 }}
@@ -95,21 +98,22 @@ function LoginPage({ setUser }) {
 
       {/* Form Section */}
       <motion.div
-        className="flex items-center justify-center w-full lg:w-1/2 lg:bg-[#2418ff] bg-gray-100 p-4" // Added padding
+        className="flex items-center justify-center w-full lg:w-1/2 lg:bg-[#2418ff] bg-gray-100 p-4"
         initial={{ opacity: 0, x: 200 }}
         animate={{ opacity: 1, x: 0, transition: { duration: 0.8 } }}
       >
         <motion.form
           className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md"
           onSubmit={handleSubmit}
-          noValidate // Prevent default browser validation, rely on custom logic/toasts
+          noValidate
         >
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
             Login Form
           </h2>
 
-          {/* Email Field */}
+          {/* Email Field (remains the same) */}
           <div className="mb-4">
+            {/* ... email input code ... */}
             <label
               className="block text-gray-700 font-medium mb-2"
               htmlFor="email"
@@ -128,8 +132,9 @@ function LoginPage({ setUser }) {
             />
           </div>
 
-          {/* Password Field */}
+          {/* Password Field (remains the same) */}
           <div className="mb-4">
+            {/* ... password input code ... */}
             <label
               className="block text-gray-700 font-medium mb-2"
               htmlFor="password"
@@ -162,12 +167,13 @@ function LoginPage({ setUser }) {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button (remains the same) */}
           <button
             type="submit"
-            className="w-full bg-[#2418ff] text-white py-2.5 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200 disabled:opacity-60" // Adjusted padding/disabled style
-            disabled={loading || !formData.email || !formData.password} // Disable if loading or fields empty
+            className="w-full bg-[#2418ff] text-white py-2.5 px-4 rounded-lg hover:bg-[#231bcd] transition duration-200 disabled:opacity-60"
+            disabled={loading || !formData.email || !formData.password}
           >
+            {/* ... loading indicator code ... */}
             {loading ? (
               <div className="flex justify-center items-center space-x-2">
                 {/* Simple spinner using border */}
@@ -179,10 +185,9 @@ function LoginPage({ setUser }) {
             )}
           </button>
 
-          {/* Link to Register */}
+          {/* Link to Register (remains the same) */}
           <div className="text-center mt-5">
-            {" "}
-            {/* Centered text */}
+            {/* ... register link code ... */}
             Don't have an account?&nbsp;
             <Link
               to="/register"
@@ -191,22 +196,30 @@ function LoginPage({ setUser }) {
               Create Account
             </Link>
           </div>
-          {/* Optional: Add Forgot Password link */}
+
+          {/* --- Updated Forgot Password Link --- */}
           <div className="text-center mt-2">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-gray-600 hover:text-[#2418ff] hover:underline"
+            <button
+              type="button" // Important: type="button" so it doesn't submit the form
+              onClick={handleOpenForgotPassword} // Trigger the popup
+              className="text-sm text-gray-600 hover:text-[#2418ff] hover:underline focus:outline-none"
             >
               Forgot Password?
-            </Link>
+            </button>
           </div>
+          {/* --- End Update --- */}
         </motion.form>
       </motion.div>
 
-      {/* Render OTP Popup Conditionally */}
-      {showOtpPopup && (
-        <OtpPopup email={emailForOtp} onClose={handleCloseOtpPopup} />
-      )}
+      {/* Render Popups Conditionally using AnimatePresence for exit animations */}
+      <AnimatePresence>
+        {showOtpPopup && (
+          <OtpPopup email={emailForOtp} onClose={handleCloseOtpPopup} />
+        )}
+        {showForgotPasswordPopup && ( // <-- Render Forgot Password Popup
+          <ForgotPasswordPopup onClose={handleCloseForgotPassword} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
