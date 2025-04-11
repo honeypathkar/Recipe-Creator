@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Route,
   BrowserRouter as Router,
@@ -6,7 +6,11 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
-import AppDrawer from "./components/AppDrawer";
+import { Box } from "@mui/material";
+
+// Import components and screens
+import NavBar from "./components/Navbar"; // Ensure correct path
+import PageLayout from "./components/PageLayout"; // Import the PageLayout component
 import FavouriteScreen from "./screens/FavouriteScreen";
 import Home from "./screens/HomeScreen";
 import RecipeScreen from "./screens/RecipeScreen";
@@ -18,19 +22,90 @@ import DetailScreen from "./screens/DetailScreen";
 import "./App.css";
 import { GetFavUrl, GetUserRecipesUrl, UserProfileUrl } from "../API";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function AppWrapper() {
   const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(false); // Consider separate loading states if needed
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
 
-  // Redirect to login if no token is found on initial check
+  // --- Data Fetching Functions ---
+  const fetchUserData = useCallback(async () => {
+    if (!token) return;
+    console.log("Fetching User Data...");
+    try {
+      const response = await axios.get(UserProfileUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setUser(response?.data);
+      } else {
+        console.error(
+          `Failed to fetch user: ${response.statusText} (Status: ${response.status})`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error.message);
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
+        localStorage.removeItem("authToken");
+        setUser(null);
+        navigate("/login");
+      }
+    }
+  }, [token, navigate]);
+
+  const fetchUserRecipes = useCallback(async () => {
+    if (!token) return;
+    console.log("Fetching User Recipes...");
+    try {
+      const response = await axios.get(GetUserRecipesUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setRecipes(response?.data);
+      } else {
+        console.error(
+          `Failed to fetch user recipes: ${response.statusText} (Status: ${response.status})`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching user recipes:", error.message);
+    }
+  }, [token]);
+
+  const fetchUserFavRecipes = useCallback(async () => {
+    if (!token) return;
+    console.log("Fetching User Favorites...");
+    try {
+      const response = await axios.get(GetFavUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setFavorites(response?.data);
+      } else {
+        console.error(
+          `Failed to fetch favorites: ${response.statusText} (Status: ${response.status})`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching favorites:", error.message);
+    }
+  }, [token]);
+
+  // --- Effect for Initial Data Load ---
   useEffect(() => {
-    if (!token) {
-      // Only navigate if the user isn't already on login/register
+    if (token) {
+      fetchUserData();
+    } else {
+      setUser(null);
+      setRecipes([]);
+      setFavorites([]);
       if (
         window.location.pathname !== "/login" &&
         window.location.pathname !== "/register"
@@ -38,204 +113,149 @@ function AppWrapper() {
         navigate("/login");
       }
     }
-  }, [token, navigate]); // Dependency on token ensures this check runs if token changes
+  }, [token, navigate, fetchUserData]);
 
-  // --- Data Fetching Functions ---
-  // Use useCallback to memoize fetch functions if passed as props,
-  // though ideally, avoid passing them if only data is needed.
-
-  const fetchUserData = useCallback(async () => {
-    if (!token) return; // Don't fetch if no token
-    console.log("Fetching User Data..."); // Add logs for debugging
-    setLoading(true); // Maybe use a specific loading state like setUserLoading(true)
-    try {
-      const response = await axios.get(UserProfileUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // Check for successful status code (e.g., 200 OK)
-      if (response.status === 200) {
-        setUser(response?.data);
-      } else {
-        throw new Error(
-          `Failed to fetch user: ${response.statusText} (Status: ${response.status})`
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error.message);
-      // Handle error appropriately (e.g., show message, clear user, logout)
-      // localStorage.removeItem("authToken"); // Optional: clear token on auth error
-      // setUser(null);
-      // navigate("/login");
-    } finally {
-      setLoading(false); // setUserLoading(false)
-    }
-  }, [token]); // Recreate function if token changes
-
-  const fetchUserRecipes = useCallback(async () => {
-    if (!token) return;
-    console.log("Fetching User Recipes...");
-    // setLoading(true); // Use separate loading state if needed
-    try {
-      const response = await axios.get(GetUserRecipesUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.status === 200) {
-        setRecipes(response?.data);
-      } else {
-        throw new Error(
-          `Failed to fetch user recipes: ${response.statusText} (Status: ${response.status})`
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching user recipes:", error.message);
-    } finally {
-      // setLoading(false);
-    }
-  }, [token]);
-
-  const fetchUserFavRecipes = useCallback(async () => {
-    if (!token) return;
-    console.log("Fetching User Favorites...");
-    // setLoading(true); // Use separate loading state if needed
-    try {
-      const response = await axios.get(GetFavUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.status === 200) {
-        setFavorites(response?.data);
-      } else {
-        throw new Error(
-          `Failed to fetch favorites: ${response.statusText} (Status: ${response.status})`
-        );
-      }
-    } catch (error) {
-      console.error("Error fetching favorites:", error.message);
-    } finally {
-      // setLoading(false);
-    }
-  }, [token]);
-
-  // --- Effect for Initial Data Load ---
   useEffect(() => {
-    if (token) {
-      console.log("Token found, fetching initial data.");
-      // Fetch all essential data once when the token is available
-      fetchUserData();
+    if (user) {
       fetchUserRecipes();
       fetchUserFavRecipes();
-    } else {
-      // If token becomes null (logout), clear user data
-      setUser(null);
-      setRecipes([]);
-      setFavorites([]);
-      console.log("Token not found or removed, clearing data.");
     }
-  }, [token, fetchUserData, fetchUserRecipes, fetchUserFavRecipes]); // Include memoized fetch functions in deps
+  }, [user, fetchUserRecipes, fetchUserFavRecipes]);
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    // setUser(null); // State will be cleared by the useEffect watching the token
-    // setRecipes([]);
-    // setFavorites([]);
-    navigate("/login");
+  const handleLogout = async () => {
+    const token = localStorage.getItem("authToken");
+    // Always perform client-side logout actions regardless of backend call success
+    const performClientLogout = () => {
+      setUser(null);
+      localStorage.removeItem("authToken");
+      navigate("/login", { replace: true });
+      toast.success("Logout Successful");
+    };
+
+    if (!token) {
+      performClientLogout();
+      return;
+    }
+
+    try {
+      await axios.post(
+        LogoutUrl,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Logout Successfull.");
+    } catch (error) {
+      console.error(
+        "Error calling backend logout (proceeding with client logout):",
+        error
+      );
+    } finally {
+      performClientLogout();
+    }
   };
 
   return (
-    <>
+    // Outermost Box for overall page structure
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Alert />
+
+      {/* Conditionally render NavBar */}
+      {token && <NavBar user={user} logout={handleLogout} />}
+
+      {/* Use Routes to render the appropriate component based on the path */}
       <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginPage setUser={setUser} />} />
-        <Route path="/register" element={<RegisterPage />} />
-
-        {/* Protected Routes */}
+        {/* Public Routes - Do NOT wrap these in PageLayout */}
         <Route
+          path="/login"
           element={
-            // Render AppDrawer (layout) only if user is authenticated
-            token ? (
-              <AppDrawer user={user} logout={handleLogout} />
-            ) : (
-              <Navigate to="/login" />
-            )
+            !token ? <LoginPage setUser={setUser} /> : <Navigate to="/home" />
           }
-        >
-          <Route
-            path="/home"
-            element={
-              // Pass data down, not necessarily the fetch functions unless needed for refresh
-              <Home
-                user={user} // Pass user data
-                recipes={recipes}
-                favorites={favorites}
-                fetchUserFavRecipes={fetchUserFavRecipes}
-                fetchUserRecipes={fetchUserRecipes}
-                fetchUserData={fetchUserData}
-                // Pass specific refresh functions if needed, e.g., refreshRecipes={fetchUserRecipes}
-                // Avoid passing fetchUserData if Home doesn't need to trigger a full profile refetch
-              />
-            }
-          />
-          <Route
-            path="/recipe"
-            element={
-              <RecipeScreen
-                user={user} // Pass user data
-                recipes={recipes}
-                favorites={favorites}
-                fetchUserRecipes={fetchUserRecipes} // Keep if RecipeScreen needs to refresh recipes
-                fetchUserFavRecipes={fetchUserFavRecipes} // Keep if RecipeScreen needs to refresh favs
-                fetchUserData={fetchUserData}
-                // Avoid passing fetchUserData
-              />
-            }
-          />
-          <Route
-            path="/fav"
-            element={
-              <FavouriteScreen
-                user={user} // Pass user data
-                favorites={favorites}
-                fetchUserFavRecipes={fetchUserFavRecipes} // Keep if FavScreen needs to refresh favs
-                fetchUserData={fetchUserData}
-                // Avoid passing fetchUserData or fetchUserRecipes
-              />
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <SettingScreen
-                user={user}
-                setUser={setUser} // Needed to update user after profile edit
-                loading={loading}
-                fetchUserData={fetchUserData} // Pass ONLY if settings needs to RE-FETCH after update
-              />
-            }
-          />
-          <Route path="/recipe/:id" element={<DetailScreen user={user} />} />{" "}
-          {/* Pass user if needed */}
-        </Route>
-
-        {/* Fallback Route - Redirect root to home if logged in, else login */}
+        />
         <Route
-          path="/"
-          element={<Navigate to={token ? "/home" : "/login"} />}
+          path="/register"
+          element={!token ? <RegisterPage /> : <Navigate to="/home" />}
         />
 
-        {/* Optional: Catch-all for undefined routes */}
-        <Route
-          path="*"
-          element={<Navigate to={token ? "/home" : "/login"} />}
-        />
+        {/* Protected Routes - Wrap elements in PageLayout */}
+        {token ? (
+          <>
+            <Route
+              path="/home"
+              element={
+                <PageLayout>
+                  <Home
+                    user={user}
+                    recipes={recipes}
+                    favorites={favorites}
+                    fetchUserFavRecipes={fetchUserFavRecipes}
+                    fetchUserRecipes={fetchUserRecipes}
+                    fetchUserData={fetchUserData} // Added back
+                  />
+                </PageLayout>
+              }
+            />
+            <Route
+              path="/recipe"
+              element={
+                <PageLayout>
+                  <RecipeScreen
+                    user={user}
+                    recipes={recipes}
+                    favorites={favorites}
+                    fetchUserRecipes={fetchUserRecipes}
+                    fetchUserFavRecipes={fetchUserFavRecipes}
+                    fetchUserData={fetchUserData} // Added back
+                  />
+                </PageLayout>
+              }
+            />
+            <Route
+              path="/fav"
+              element={
+                <PageLayout>
+                  <FavouriteScreen
+                    user={user}
+                    favorites={favorites}
+                    fetchUserFavRecipes={fetchUserFavRecipes}
+                    fetchUserData={fetchUserData} // Added back
+                    fetchUserRecipes={fetchUserRecipes} // Added back
+                  />
+                </PageLayout>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PageLayout>
+                  <SettingScreen
+                    user={user}
+                    setUser={setUser}
+                    loading={loading}
+                    fetchUserData={fetchUserData} // This was already present
+                    handleLogout={handleLogout}
+                  />
+                </PageLayout>
+              }
+            />
+            <Route
+              path="/recipe/:id"
+              element={
+                <PageLayout>
+                  <DetailScreen user={user} />
+                </PageLayout>
+              }
+            />
+
+            {/* Fallback routes for logged-in users */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
+          </>
+        ) : (
+          // Fallback for any non-public route when logged out
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        )}
       </Routes>
-    </>
+    </Box> // End of outermost Box
   );
 }
 

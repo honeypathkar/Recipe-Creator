@@ -15,7 +15,6 @@ const RecipeCard = ({
   fetchUserData,
 }) => {
   const navigate = useNavigate();
-
   // Early return if recipe data is missing
   if (!recipe) {
     console.warn("RecipeCard rendered without a recipe object.");

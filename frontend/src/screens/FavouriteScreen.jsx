@@ -11,6 +11,7 @@ function FavouriteScreen({
   fetchUserFavRecipes,
   fetchUserData,
   loading, // Prop to indicate if favorites are loading
+  fetchUserRecipes,
 }) {
   // Number of skeletons to display while loading
   const skeletonCount = 6;
@@ -67,6 +68,7 @@ function FavouriteScreen({
                 fetchUserData={fetchUserData}
                 // fetchUserRecipes prop is likely not needed here unless removing a favorite should also refresh a global recipe list differently
                 fetchUserFavRecipes={fetchUserFavRecipes} // Essential for updating after unfavorite
+                fetchUserRecipes={fetchUserRecipes}
               />
             ))}
           </div>
