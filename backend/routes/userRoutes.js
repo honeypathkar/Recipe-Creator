@@ -3,9 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const verifyToken = require("../middleware/verifyToken");
-const crypto = require("crypto");
 require("dotenv").config();
-const nodemailer = require("nodemailer");
 const sendOtp = require("../middleware/sendOtp");
 
 const router = express.Router();
@@ -86,7 +84,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/verify-otp", async (req, res) => {
+//Account Verification
+router.post("/verifyAccount", async (req, res) => {
   try {
     const { email, otp } = req.body;
     const user = await User.findOne({ email });
@@ -118,45 +117,122 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-// Get Profile
-router.get("/profile", verifyToken, async (req, res) => {
+//Send Otp for login
+router.post("/sendOtp", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.user.email });
-    if (!user) return res.status(404).json({ error: "User not found" });
-    res.status(200).json(user);
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email address is required." });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message:
+          "If your email is registered and verified, an OTP will be sent.",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message:
+          "Your account is not verified. Please verify your email first.",
+      });
+    }
+
+    await sendOtp(user);
+
+    console.log(`Login OTP sent to email: ${email}`);
+    return res.status(200).json({
+      message: `OTP sent to your verified email address ${email}. Please check your inbox (and spam folder).`,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch user profile" });
+    console.error("Error sending OTP:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to send OTP. Please try again later." });
   }
 });
 
-// Get All Users
-router.get("/all", verifyToken, async (req, res) => {
+//Verify Otp for login
+router.post("/verifyOtp", async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json(users);
+    const { email, otp } = req.body;
+
+    // 1. Validate input
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Email and OTP are required." });
+    }
+
+    // 2. Find user by email
+    const user = await User.findOne({ email });
+
+    // 3. Handle user not found
+    if (!user) {
+      // Use generic error to avoid revealing user existence
+      return res.status(400).json({ error: "Invalid OTP or email." });
+    }
+
+    // 4. Check if OTP exists and hasn't expired
+    // Ensure user document HAS otp and otpExpires fields!
+    if (!user.otp || user.otpExpiry < Date.now()) {
+      // Clear expired/non-existent OTP fields just in case
+      user.otp = undefined;
+      user.otpExpiry = undefined;
+      await user.save(); // Save the clearance
+      return res.status(400).json({ error: "OTP is invalid or has expired." });
+    }
+
+    // 5. Compare provided OTP with stored OTP
+    // NOTE: For security, OTPs should ideally be hashed in the DB and compared using a secure method.
+    // Assuming plaintext comparison for simplicity based on previous context.
+    if (user.otp !== otp) {
+      return res.status(400).json({ error: "Invalid OTP or email." }); // Generic error
+    }
+
+    // 6. OTP is correct and valid!
+    // Clear the OTP fields now that it's used
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+
+    // If this OTP verification ALSO verifies the user's account for the first time
+    // Ensure the user is marked as verified
+    if (!user.isVerified) {
+      user.isVerified = true;
+    }
+    await user.save(); // Save changes (OTP clearance and potentially isVerified status)
+
+    // 7. Generate JWT (using the same structure as your /login)
+    const payload = {
+      email: user.email,
+      userId: user._id,
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    }); // Use same secret and consider expiry time
+
+    // 8. Set JWT as an HTTP-only cookie
+    res.cookie("token", token, cookieOptions);
+
+    console.log(`User verified and logged in via OTP: ${email}`);
+
+    // 9. Send success response (mirroring the /login success response)
+    return res.status(200).json({
+      message: "Verification successful. Logged in.", // Or "Account verified successfully. Logged in."
+      token: token, // Send token in body as well
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch users" });
+    // 10. Handle errors
+    console.error("Error verifying OTP:", error);
+    // Use 'error' key consistent with your /login route's error response
+    return res
+      .status(500)
+      .json({ error: "Internal server error during OTP verification." });
   }
 });
 
-// Logout
-router.post("/logout", (req, res) => {
-  res.clearCookie("token", cookieOptions);
-  res.status(200).json({ message: "Logout successful" });
-});
-
-// Delete User
-router.delete("/delete", verifyToken, async (req, res) => {
-  try {
-    const deletedUser = await User.findOneAndDelete({ email: req.user.email });
-    if (deletedUser)
-      res.status(200).json({ message: "User deleted successfully" });
-    else res.status(404).json({ error: "User not found" });
-  } catch (error) {
-    res.status(500).json({ error: "Server error while deleting user" });
-  }
-});
-
+//Forgot password route
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -203,6 +279,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
+//Reset password route
 router.post("/reset-password-with-otp", async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -261,6 +338,45 @@ router.post("/reset-password-with-otp", async (req, res) => {
   } catch (error) {
     console.error("Reset Password with OTP Route Error:", error);
     res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Get Profile
+router.get("/profile", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
+});
+
+// Get All Users
+router.get("/all", verifyToken, async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Logout
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", cookieOptions);
+  res.status(200).json({ message: "Logout successful" });
+});
+
+// Delete User
+router.delete("/delete", verifyToken, async (req, res) => {
+  try {
+    const deletedUser = await User.findOneAndDelete({ email: req.user.email });
+    if (deletedUser)
+      res.status(200).json({ message: "User deleted successfully" });
+    else res.status(404).json({ error: "User not found" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error while deleting user" });
   }
 });
 

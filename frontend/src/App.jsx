@@ -7,7 +7,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { Box } from "@mui/material";
-
 // Import components and screens
 import NavBar from "./components/Navbar"; // Ensure correct path
 import PageLayout from "./components/PageLayout"; // Import the PageLayout component
@@ -20,7 +19,12 @@ import RegisterPage from "./pages/RegisterPage";
 import Alert from "./components/Alert";
 import DetailScreen from "./screens/DetailScreen";
 import "./App.css";
-import { GetFavUrl, GetUserRecipesUrl, UserProfileUrl } from "../API";
+import {
+  GetFavUrl,
+  GetUserRecipesUrl,
+  UserProfileUrl,
+  LogoutUrl,
+} from "../API";
 import axios from "axios";
 import { toast } from "react-toastify";
 

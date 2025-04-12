@@ -2,7 +2,7 @@ const PROD_BASE_API = import.meta.env.VITE_REACT_APP_PROD_BASE_API_URL;
 const LOCALHOST_BASE_API = import.meta.env
   .VITE_REACT_APP_LOCALHOST_BASE_API_URL;
 export const LoginUrl = `${PROD_BASE_API}/users/login`;
-export const VerifyOtp = `${PROD_BASE_API}/users/verify-otp`;
+export const VerifyOtp = `${PROD_BASE_API}/users/verifyOtp`;
 export const RegisterUrl = `${PROD_BASE_API}/users/register`;
 export const RecipeCreateUrl = `${PROD_BASE_API}/recipes/generate`;
 export const RecipeDeleteUrl = `${PROD_BASE_API}/recipes/delete`;
@@ -17,3 +17,5 @@ export const GetAllRecipe = `${PROD_BASE_API}/recipes/all`;
 export const LogoutUrl = `${PROD_BASE_API}/users/logout`;
 export const ForgotPasswordUrl = `${PROD_BASE_API}/users/forgot-password`;
 export const ResetPasswordWithOtpUrl = `${PROD_BASE_API}/users/reset-password-with-otp`;
+export const SendOtp = `${PROD_BASE_API}/users/sendOtp`;
+export const VerifyAccount = `${PROD_BASE_API}/users/verifyAccount`;
