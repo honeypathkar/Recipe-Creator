@@ -1,94 +1,114 @@
-# Recipe Creator AI - MERN Stack Project
+# 🍽️ Recipe Creator AI - MERN Stack Project
 
-## Description
+Welcome to **Recipe Creator AI**, a full-stack MERN application that uses artificial intelligence to generate delicious recipes based on ingredients you provide. Whether you're in the mood for Indian curry, Italian pasta, or Chinese noodles, this app has you covered — in your preferred language and for the number of people you're serving!
 
-**Recipe Creator AI** is a full-stack MERN application that leverages artificial intelligence to generate recipes based on the ingredients provided by the user. This project uses a combination of modern technologies to deliver an interactive and feature-rich user experience.
+---
 
-Key features include:
+## 🚀 Live Preview
+> [View Live](https://recipe-creator-ai.netlify.app/)
 
-- **AI-Generated Recipes**: Create recipes based on provided ingredients, with options for choosing cuisine, language, and serving size (number of members).
-- **User Authentication**: Users can create an account, log in, log out, and delete their account.
-- **Favorites**: Users can add recipes to their favorites, view saved recipes, and permanently delete recipes.
-- **Responsive Design**: Tailwind CSS ensures that the UI is responsive and optimized for different screen sizes.
-- **Material Icons**: The project uses Material UI icons for a polished and user-friendly interface.
+---
 
-This project is built using the MERN stack, which includes:
+## 📌 Features
 
-- **MongoDB**: A NoSQL database used for storing user data, recipes, and favorites.
-- **Express.js**: The backend framework used to handle API requests.
-- **React.js**: The frontend framework used to create dynamic user interfaces.
-- **Node.js**: The runtime environment used for building and running the backend.
+- 🤖 **AI-Generated Recipes**  
+  Generate recipes by entering your ingredients. Choose your preferred **cuisine**, **language**, and **serving size**.
+  
+- 🔐 **User Authentication**  
+  Sign up, log in, log out, and securely manage your account with JWT-based authentication.
 
-## Features
+- ❤️ **Favorites Management**  
+  Save your favorite recipes and manage them with ease. Delete recipes permanently when needed.
 
-- **Create Recipes**: Input ingredients and get a recipe generated with AI.
-- **Choose Cuisine**: Select from various cuisines like Indian, Chinese, Italian, etc.
-- **Language Option**: Recipes can be generated in different languages.
-- **Member Option**: Specify the number of servings (members) for the recipe.
-- **Favorite Recipes**: Add recipes to your favorites and view them anytime.
-- **Delete Recipe**: Permanently delete recipes from your account.
-- **User Account Management**: Create an account, log in, log out, and delete your account.
+- 📱 **Responsive Design**  
+  Built with **Tailwind CSS**, ensuring a seamless experience on mobile, tablet, and desktop.
 
-## Technologies Used
+- ✨ **Sleek UI**  
+  Powered by **Material UI Icons**, **React Toastify**, and **SweetAlert** for a polished user experience.
 
-- **Frontend**:
-  - React.js
-  - Tailwind CSS
-  - Material UI Icons
-  - React Toastify for notifications
-  - SweetAlert for alert
-- **Backend**:
-  - Node.js
-  - Express.js
-  - MongoDB (with Mongoose for schema management)
-  - Google Gemini AI for generating recipes
-  - JWT for user authentication
+---
 
-## Instructions to Run
+## 🛠️ Tech Stack
 
-### 1. Clone the GitHub Repository
+### **Frontend**
+- React.js
+- Tailwind CSS
+- Material UI Icons
+- React Toastify
+- SweetAlert
+
+### **Backend**
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- Google Gemini AI API
+- JWT (JSON Web Token) Authentication
+
+
+## 🧑‍🍳 Getting Started
+
+### ✅ Prerequisites
+- Node.js installed
+- MongoDB running locally or on Atlas
+- Gemini AI API Key
+- Email credentials for user actions (optional)
+
+---
+
+## 📥 Installation & Running
+
+### 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/honeypathkar/Recipe-Creator.git
 ```
 
-### 2. Setup Backend
+### 2️⃣ Setup Backend
+```bash
+cd backend
+npm install
+```
 
-- Install the required dependencies :
+### ➡️ Create a .env file with the following keys:
+```bash
+GEMINI_API_KEY=your-gemini-api-key
+JWT_SECRET=your-jwt-secret
+CLIENT_URL=http://localhost:5173
+EMAIL_USER=your-email-address
+APP_PASS=your-app-password
+```
 
-  ```bash
-  cd backend
-  npm install
-  ```
+### 🚀 Start the backend server:
+```bash
+nodemon app.js
+```
 
-- Add your Gemini API Key in the .env file (create it if it doesn't exist) And also Add JWT_SECRET key and CLIENT_URL:
-  ```bash
-  GEMINI_API_KEY=your-api-key
-  JWT_SECRET=your-key
-  CLIENT_URL=your-client-url
-  EMAIL_USER=your-email
-  APP_PASS=your-app-pass-for-email
-  ```
-- Start the backend server:
-  ```bash
-  nodemon app.js
-  ```
+### 3️⃣ Setup Frontend
+```bash
+cd frontend
+npm install
+```
 
-### 3. Setup Frontend
+### 🚀 Start the frontend development server:
+```bash
+npm run dev
+```
 
-- install the required dependencies:
-  ```bash
-  cd frontend
-  npm install
-  ```
-- Start the frontend development server:
-  ```bash
-  npm run dev
-  ```
+## 🌐 Access the App
+### Once both servers are running, go to
+```bash
+http://localhost:5173
+```
 
-## Access the application
+## 🧠 Powered By
+- Gemini AI by Google
+- MongoDB
+- React
+- Express
+- Node.js
+- Tailwind CSS
 
-- Once both the frontend and backend are running, you can access the application by opening your browser and navigating to:
-  ```bash
-    http://localhost:5173
-  ```
+## 👨‍💻 Contribution
+Feel free to fork the repo and raise a PR for any features, suggestions, or bug fixes! Contributions are always welcome 💡
+
+## Made with ❤️  by Honey Pathkar
