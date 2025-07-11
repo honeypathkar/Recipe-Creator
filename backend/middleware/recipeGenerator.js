@@ -11,26 +11,28 @@ const generateRecipe = async ({ ingredients, members, cuisine, language }) => {
     Ingredients: ${JSON.stringify(ingredients)}
     Serves: ${members} people.
     Give response in this language ${language}
-    Format the recipe with a title, in ingredients always give item name and quintity,  cooking instructions with step count and description of instrunction, and serving suggestions in json format.
+    Format the recipe with a title, in ingredients always give item name and quantity, cooking instructions with step count and description of instructions, and serving suggestions in JSON format.
   `;
 
   try {
     const result = await model.generateContent(prompt);
-    // console.log("Full AI Response:", result); // Log the entire response object
 
-    // Remove any markdown formatting from the response
-    let jsonData = result.response.text().trim();
-    jsonData = jsonData.replace(/```json|```/g, ""); // Remove triple backticks
+    let raw = result.response.text().trim();
+    raw = raw.replace(/```json|```/g, "");
 
-    // Parse the cleaned JSON data
-    return JSON.parse(jsonData);
+    const firstBrace = raw.indexOf("{");
+    const lastBrace = raw.lastIndexOf("}");
+
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      raw = raw.slice(firstBrace, lastBrace + 1);
+    }
+
+    return JSON.parse(raw);
   } catch (error) {
-    console.error(
-      "Error generating content:",
-      error.response ? error.response.data : error.message
-    );
-    throw new Error("Failed to generate recipe");
+    console.error("Error parsing Gemini response:", error.message);
+    throw new Error("Failed to generate recipe due to invalid JSON format.");
   }
 };
+
 
 module.exports = { generateRecipe };
