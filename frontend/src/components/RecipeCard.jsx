@@ -15,13 +15,11 @@ const RecipeCard = ({
   fetchUserData,
 }) => {
   const navigate = useNavigate();
-  // Early return if recipe data is missing
   if (!recipe) {
     console.warn("RecipeCard rendered without a recipe object.");
     return null;
   }
 
-  // Destructure with default values for safety, though early return helps
   const {
     title = "Untitled Recipe",
     cuisine = "Unknown",
@@ -32,14 +30,11 @@ const RecipeCard = ({
 
   const isFavorite = favorites?.some((fav) => fav?._id === _id); // Added optional chaining
 
-  // --- Event Handlers ---
-
   const handleViewDetails = () => {
     navigate(`/recipe/${_id}`);
   };
 
   const handleFavoriteClick = async () => {
-    // Determine URL and success message based on current favorite status
     const url = isFavorite ? RemoveFavUrl : AddToFavUrl;
     const successMessage = isFavorite
       ? "Recipe removed from favorites!"
@@ -67,9 +62,7 @@ const RecipeCard = ({
         }
       );
 
-      // Check for explicit success status codes (e.g., 200 OK, 201 Created)
       toast.success(successMessage);
-      // Refresh relevant data in the parent component
       fetchUserFavRecipes();
       fetchUserData();
       fetchUserRecipes();
@@ -99,8 +92,6 @@ const RecipeCard = ({
     }
 
     try {
-      // Note: Sending data in the body for DELETE is non-standard but possible with Axios.
-      // Ensure your backend API route for RecipeDeleteUrl expects 'recipeId' in the request body.
       const response = await axios.delete(RecipeDeleteUrl, {
         data: { recipeId: _id },
         headers: {
@@ -111,10 +102,8 @@ const RecipeCard = ({
 
       if (response.status === 200) {
         toast.success("Recipe deleted successfully!");
-        // Refresh relevant data in the parent component
         fetchUserRecipes();
         fetchUserFavRecipes(); // Refresh favorites in case it was favorited
-        // fetchUserData(); // Refresh user data if needed
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
       }
@@ -134,24 +123,19 @@ const RecipeCard = ({
     const recipeUrl = `${window.location.origin}/recipe/${_id}`;
 
     if (navigator.share) {
-      // Use Web Share API if available
       try {
         await navigator.share({
           title: title,
           text: `Check out this recipe: ${title}`,
           url: recipeUrl,
         });
-        // Success toast might be redundant as the browser shows confirmation
-        // toast.success("Recipe shared!");
       } catch (error) {
         console.error("Error sharing:", error);
-        // Ignore error if user cancelled the share action
         if (error.name !== "AbortError") {
           toast.error("Failed to share recipe.");
         }
       }
     } else {
-      // Fallback: Copy to clipboard
       try {
         await navigator.clipboard.writeText(recipeUrl);
         toast.success("Recipe link copied to clipboard!");
@@ -166,15 +150,9 @@ const RecipeCard = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full">
-      {/* Optional Image Area */}
-      {/* <div className="w-full h-40 bg-gray-200"><img ... /></div> */}
-
       <div className="p-4 flex flex-col flex-grow">
-        {/* Header */}
         <div className="flex justify-between items-start mb-2">
           <h2 className="text-xl font-semibold text-gray-800 mr-2 break-words">
-            {" "}
-            {/* Allow title wrapping */}
             {title}
           </h2>
           <div className="flex space-x-2 flex-shrink-0">
@@ -203,16 +181,15 @@ const RecipeCard = ({
           </div>
         </div>
 
-        {/* Cuisine */}
         <p className="text-sm text-gray-500 mb-3">
           {cuisine ? `Cuisine: ${cuisine}` : <>&nbsp;</>}{" "}
-          {/* Ensure space is occupied */}
         </p>
 
-        {/* Ingredients Preview */}
+        <p className="text-sm text-gray-500 mb-3">
+          {createdBy ? `Created By: ${createdBy?.name}` : <>&nbsp;</>}{" "}
+        </p>
+
         <div className="mb-4 flex-grow min-h-[80px]">
-          {" "}
-          {/* Ensure min height */}
           <h3 className="text-md font-medium text-gray-700 mb-1">
             Ingredients
           </h3>
@@ -224,8 +201,6 @@ const RecipeCard = ({
                   className="truncate"
                   title={`${item.item} (${item.quantity})`}
                 >
-                  {" "}
-                  {/* Added title attribute */}
                   {item.item} ({item.quantity})
                 </li>
               ))}
@@ -240,7 +215,6 @@ const RecipeCard = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
           <button
             onClick={handleViewDetails}
@@ -249,7 +223,6 @@ const RecipeCard = ({
             See More
             <FaArrowRight className="ml-1.5 h-3 w-3" />
           </button>
-          {/* Conditionally render Delete button */}
           {isOwner && (
             <button
               onClick={handleDelete}

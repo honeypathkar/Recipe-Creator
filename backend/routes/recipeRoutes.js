@@ -53,12 +53,44 @@ router.delete("/delete", verifyToken, async (req, res) => {
   }
 });
 
-// Get All Recipes
+// Get All Recipe
 router.get("/all", verifyToken, async (req, res) => {
   try {
-    const recipes = await Recipe.find();
-    res.status(200).json(recipes);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const skip = (page - 1) * limit;
+
+    const searchQuery = {
+      title: { $regex: search, $options: "i" },
+    };
+
+    // Fetch recipes with user name populated
+    const allRecipes = await Recipe.find(searchQuery)
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "name"); // 👈 Only populates `name` field from User
+
+    const userId = req.user.userId;
+
+    const userRecipes = allRecipes.filter(
+      (recipe) => recipe.createdBy && recipe.createdBy._id.toString() === userId
+    );
+
+    const otherRecipes = allRecipes.filter(
+      (recipe) => recipe.createdBy && recipe.createdBy._id.toString() !== userId
+    );
+
+    const combined = [...userRecipes, ...otherRecipes];
+    const paginatedRecipes = combined.slice(skip, skip + limit);
+
+    res.status(200).json({
+      total: combined.length,
+      page,
+      limit,
+      recipes: paginatedRecipes,
+    });
   } catch (error) {
+    console.error("Error fetching recipes:", error);
     res.status(500).json({ error: "Failed to fetch recipes" });
   }
 });

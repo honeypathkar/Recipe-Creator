@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require("dotenv").config();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 const generateRecipe = async ({ ingredients, members, cuisine, language }) => {
   const prompt = `
@@ -18,21 +18,27 @@ const generateRecipe = async ({ ingredients, members, cuisine, language }) => {
     const result = await model.generateContent(prompt);
 
     let raw = result.response.text().trim();
-    raw = raw.replace(/```json|```/g, "");
 
-    const firstBrace = raw.indexOf("{");
-    const lastBrace = raw.lastIndexOf("}");
+    const jsonMatch = raw.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonMatch && jsonMatch[1]) {
+      raw = jsonMatch[1].trim();
+    } else {
+      const firstBrace = raw.indexOf("{");
+      const lastBrace = raw.lastIndexOf("}");
 
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      raw = raw.slice(firstBrace, lastBrace + 1);
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        raw = raw.slice(firstBrace, lastBrace + 1);
+      } else {
+        throw new Error("No JSON structure found in Gemini response.");
+      }
     }
 
     return JSON.parse(raw);
   } catch (error) {
     console.error("Error parsing Gemini response:", error.message);
+    console.error("Raw Gemini response that caused error:", raw);
     throw new Error("Failed to generate recipe due to invalid JSON format.");
   }
 };
-
 
 module.exports = { generateRecipe };
