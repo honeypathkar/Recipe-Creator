@@ -3,13 +3,14 @@ import {
   Favorite,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from "@mui/icons-material";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import RecipeCard from "../components/RecipeCard";
-import { GetAllRecipe } from "../../API"; // This should be a string URL
+import { GetAllRecipe } from "../../API";
 import axios from "axios";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 
@@ -26,6 +27,8 @@ const HomeScreen = ({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const limit = 9;
 
   const createdAt = recipes[recipes.length - 1]?.createdAt;
@@ -39,16 +42,25 @@ const HomeScreen = ({
       : "";
 
   useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPage(1);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
     const fetchRecipes = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get(
-          `${GetAllRecipe}?page=${page}&limit=${limit}`,
-          {
-            headers: { ...(token && { Authorization: `Bearer ${token}` }) },
-          }
-        );
+        const url = `${GetAllRecipe}?page=${page}&limit=${limit}&search=${debouncedSearchQuery}`;
+        const response = await axios.get(url, {
+          headers: { ...(token && { Authorization: `Bearer ${token}` }) },
+        });
 
         const data = response.data;
         if (data?.recipes) {
@@ -56,31 +68,19 @@ const HomeScreen = ({
           setTotal(data.total);
         } else {
           setAllRecipes([]);
+          setTotal(0);
         }
       } catch (error) {
         console.error("Error fetching recipes:", error);
         setAllRecipes([]);
+        setTotal(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecipes();
-  }, [page]);
-
-  const sortedRecipes = useMemo(() => {
-    if (!user?._id) return allRecipes;
-
-    const userId = user._id;
-    return [...allRecipes].sort((a, b) => {
-      const aIsOwner = a?.createdBy?._id === userId;
-      const bIsOwner = b?.createdBy?._id === userId;
-
-      if (aIsOwner && !bIsOwner) return -1;
-      if (!aIsOwner && bIsOwner) return 1;
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-  }, [allRecipes, user]);
+  }, [page, debouncedSearchQuery]);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -185,20 +185,33 @@ const HomeScreen = ({
         </div>
 
         <div className="bg-white p-4 md:p-6 rounded-b-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-6">All Recipes</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">All Recipes</h2>
+            <div className="relative w-full max-w-xs">
+              <input
+                type="text"
+                placeholder="Search recipes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-2 pl-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {[...Array(6)].map((_, index) => (
                 <RecipeCardSkeleton key={`all-skel-${index}`} />
               ))}
             </div>
-          ) : sortedRecipes.length === 0 ? (
+          ) : allRecipes.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-gray-500">No recipes found.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {sortedRecipes.map((recipe) => (
+              {allRecipes.map((recipe) => (
                 <RecipeCard
                   key={recipe._id}
                   recipe={recipe}

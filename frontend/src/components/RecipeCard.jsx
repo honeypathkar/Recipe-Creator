@@ -184,10 +184,11 @@ const RecipeCard = ({
         <p className="text-sm text-gray-500 mb-3">
           {cuisine ? `Cuisine: ${cuisine}` : <>&nbsp;</>}{" "}
         </p>
-
-        <p className="text-sm text-gray-500 mb-3">
-          {createdBy ? `Created By: ${createdBy?.name}` : <>&nbsp;</>}{" "}
-        </p>
+        {createdBy && createdBy?.name && (
+          <p className="text-sm text-gray-500 mb-3">
+            {`Created By: ${createdBy?.name}`}
+          </p>
+        )}
 
         <div className="mb-4 flex-grow min-h-[80px]">
           <h3 className="text-md font-medium text-gray-700 mb-1">
