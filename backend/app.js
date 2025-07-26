@@ -17,7 +17,11 @@ const PORT = 5001;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://recipe-creator-ai.netlify.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://recipe-creator-ai.netlify.app",
+      "https://recipe-creator-ai.vercel.app",
+    ],
     credentials: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
