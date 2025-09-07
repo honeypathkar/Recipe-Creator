@@ -63,9 +63,9 @@ const RecipeCard = ({
       );
 
       toast.success(successMessage);
-      fetchUserFavRecipes();
-      fetchUserData();
-      fetchUserRecipes();
+      if (fetchUserFavRecipes) fetchUserFavRecipes();
+      if (fetchUserData) fetchUserData();
+      if (fetchUserRecipes) fetchUserRecipes();
     } catch (error) {
       console.error("Error updating favorites:", error);
       toast.error(
@@ -102,8 +102,9 @@ const RecipeCard = ({
 
       if (response.status === 200) {
         toast.success("Recipe deleted successfully!");
-        fetchUserRecipes();
-        fetchUserFavRecipes(); // Refresh favorites in case it was favorited
+        if (fetchUserRecipes) fetchUserRecipes();
+        if (fetchUserFavRecipes) fetchUserFavRecipes();
+        if (fetchUserData) fetchUserData();
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
       }

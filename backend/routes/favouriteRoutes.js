@@ -11,7 +11,7 @@ router.post("/favorite", verifyToken, async (req, res) => {
     // Retrieve the recipe ID from the request body
     const { recipeId } = req.body;
 
-    // Check if the recipe exists in the database
+    // Check if the recipe exists in the database (optional soft check)
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
@@ -23,23 +23,21 @@ router.post("/favorite", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Create a new favorite entry
-    const newFavorite = new Favorite({
-      user: user._id,
-      recipe: recipe._id,
-    });
+    // Prevent duplicates: if already favorited, return success
+    const already = await Favorite.findOne({ user: user._id, recipe: recipe._id });
+    if (already) {
+      return res.status(200).json({ message: "Recipe already in favorites", favorite: already });
+    }
 
-    // Save the favorite entry to the database
+    // Create a new favorite entry
+    const newFavorite = new Favorite({ user: user._id, recipe: recipe._id });
     const savedFavorite = await newFavorite.save();
 
     // Add the favorite ID to the user's favorites array
     user.favorites.push(savedFavorite._id);
     await user.save();
 
-    // Respond with the updated favorite entry
-    res
-      .status(200)
-      .json({ message: "Recipe added to favorites", favorite: savedFavorite });
+    res.status(200).json({ message: "Recipe added to favorites", favorite: savedFavorite });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
@@ -51,12 +49,6 @@ router.post("/removeFav", verifyToken, async (req, res) => {
     // Retrieve the recipe ID from the request body
     const { recipeId } = req.body;
 
-    // Check if the recipe exists in the database
-    const recipe = await Recipe.findById(recipeId);
-    if (!recipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
     // Retrieve the user from the token (added by verifyToken middleware)
     const user = await User.findOne({ email: req.user.email });
     if (!user) {
@@ -64,10 +56,7 @@ router.post("/removeFav", verifyToken, async (req, res) => {
     }
 
     // Find the favorite entry to be removed
-    const favorite = await Favorite.findOneAndDelete({
-      user: user._id,
-      recipe: recipe._id,
-    });
+    const favorite = await Favorite.findOneAndDelete({ user: user._id, recipe: recipeId });
 
     if (!favorite) {
       return res

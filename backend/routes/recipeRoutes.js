@@ -3,6 +3,7 @@ const verifyToken = require("../middleware/verifyToken");
 const { generateRecipe } = require("../middleware/recipeGenerator");
 const Recipe = require("../models/recipeModel");
 const User = require("../models/userModel");
+const Favorite = require("../models/favoriteModel");
 
 const router = express.Router();
 
@@ -43,11 +44,18 @@ router.delete("/delete", verifyToken, async (req, res) => {
         .status(403)
         .json({ message: "Unauthorized to delete this recipe" });
 
+    // Delete the recipe
     await Recipe.findByIdAndDelete(recipeId);
+
+    // Remove any favorites referencing this recipe
+    const deletedFavs = await Favorite.deleteMany({ recipe: recipeId });
     user.recipes = user.recipes.filter((id) => id.toString() !== recipeId);
     await user.save();
 
-    res.status(200).json({ message: "Recipe successfully deleted" });
+    res.status(200).json({
+      message: "Recipe successfully deleted",
+      removedFavorites: deletedFavs?.deletedCount || 0,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

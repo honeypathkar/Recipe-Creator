@@ -20,6 +20,9 @@ const favoriteSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Prevent duplicate favorites per (user, recipe)
+favoriteSchema.index({ user: 1, recipe: 1 }, { unique: true });
+
 const Favorite = mongoose.model("Favorite", favoriteSchema);
 
 module.exports = Favorite;

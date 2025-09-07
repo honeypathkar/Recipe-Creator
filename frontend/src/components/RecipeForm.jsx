@@ -84,6 +84,7 @@ const RecipeForm = ({
 
         // Fetch updated data *after* successful creation
         if (fetchUserRecipes) fetchUserRecipes();
+        if (fetchUserFavRecipes) fetchUserFavRecipes();
         if (fetchUserData) fetchUserData();
       } else {
         throw new Error(`Unexpected response status: ${response.status}`);
