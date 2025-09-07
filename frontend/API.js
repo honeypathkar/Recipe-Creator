@@ -1,4 +1,4 @@
-const PROD_BASE_API = import.meta.env.VITE_REACT_APP_LOCALHOST_BASE_API_URL;
+const PROD_BASE_API = import.meta.env.VITE_REACT_APP_PROD_BASE_API_URL;
 // const LOCALHOST_BASE_API = import.meta.env
 //   .VITE_REACT_APP_LOCALHOST_BASE_API_URL;
 // Ensure base includes the server's prefix
